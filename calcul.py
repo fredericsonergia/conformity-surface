@@ -13,6 +13,13 @@ def point_dans_triangle(triangle,M):
     P2 = triangle[2]
     return equation_droite(P0,P1,M) > 0 and equation_droite(P1,P2,M) > 0 and equation_droite(P2,P0,M) > 0
 
+def point_dans_polygone(polygone, point):
+    triangles = trianguler_polygone(polygone)
+    for triangle in triangles:
+        if point_dans_triangle(triangle, point):
+            return True
+    return False
+
 def sommet_distance_maximale(polygone,P0,P1,P2,indices):
     n = len(polygone)
     distance = 0.0

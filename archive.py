@@ -11,17 +11,37 @@ date = "latest"
 
 
 def getVille(coordinates):
-    URL = "https://apicarto.ign.fr/api/gpu/municipality"
     DATA = {"geom": {"type": "Point", "coordinates": coordinates}}
+    URL = "https://apicarto.ign.fr/api/gpu/municipality"
     res = requests.get(url=URL, json=DATA)
+    variant = "gpu"
+    try:
+        res.json()
+    except:
+        URL = "https://apicarto.ign.fr/api/cadastre/commune"
+        res = requests.get(url=URL, json=DATA)
+        variant = "cadastre"
+        res.json()
+    print(variant)
+    if res == None:
+        return None, None
+    else: 
+        res = res.json()
+        if variant == "gpu2" and len(res)>1:
+            res = res[0]
+        elif len(res) < 2:
+            return None, None
     maxLength = 0
-    for feature in res.json()["features"]:
+    if res['totalFeatures'] == 0:
+        return None, None
+    for feature in res["features"]:
         properties = feature["properties"]
-        length = len(properties["name"])
+        name = properties["name"] if variant[:3] == "gpu" else properties["nom_com"]
+        length = len(name)
         if length > maxLength:
             maxLength = length
             content = properties
-    return content["name"], content["insee"]
+    return content["name"] if variant[:3] == "gpu" else content["nom_com"], content["insee"] if variant[:3] == "gpu" else content["code_insee"]
 
 def retrieveData(dep, output):
     print("Downloading archive ... ")
@@ -34,7 +54,11 @@ def retrieveData(dep, output):
                            dep[:2] + "/" + dep + "/" + archivePath)
     with open("./data/" + archivePath, 'wb') as fp:
         fp.write(req.content)
-    the_file = gzip.open("./data/" + archivePath, 'rb')
+    try:
+        the_file = gzip.open("./data/" + archivePath, 'rb')
+    except gzip.BadGzipFile:
+        print("No archive found")
+        return None
     final_doc = ""
     print("Extracting archive ... ")
     for line in the_file:
