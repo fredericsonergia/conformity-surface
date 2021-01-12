@@ -10,7 +10,7 @@ import json
 maxDist = 50
 
 # address = input("Entrez votre adresse ('' = géolocalisation) : ")
-def main(info, closestFunction, doThePlot=False):
+def main(info, closestFunction=closestCenter, doThePlot=False):
     address, testSurf, testCoords = info
     if address != '':
         coordinates = getLocationFromAddress(address)
@@ -45,18 +45,15 @@ def main(info, closestFunction, doThePlot=False):
     buildingCoords = extractCoordinates(testClosest)
     planCoords = buildingGPS2plan(coords)
     testPlanCoords = buildingGPS2plan(buildingCoords)
-
+    print(closest)
     surroundings = [buildingGPS2plan(extractCoordinates(close)) for close in closestList]
     computedSurf = surface(planCoords)
     print(testSurf, computedSurf)
-    if abs((testSurf-computedSurf))/testSurf > .25:
-        print("")
-    else: 
-        if doThePlot and (testSurf-computedSurf)/testSurf > .1:
-            print(planCoords)
-            print(info, coordinates)
-            plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
-            plt.show()
+    if doThePlot:
+        print(planCoords)
+        print(info, coordinates)
+        plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
+        plt.show()
     # print(computedSurf, "m2")        
 
     return abs((testSurf-computedSurf)/testSurf), distanceTest**2
@@ -74,4 +71,4 @@ def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
     x, y = getXY(testPlanCoords)
     plt.plot(x,y, color='green')
 
- 
+print(main(("adress", 1, (4.863327,45.853052)), closestBuilding,doThePlot=True))
