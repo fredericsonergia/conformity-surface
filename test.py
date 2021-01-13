@@ -36,10 +36,11 @@ Max = 0
 start = time.time()
 for info in infos:
     if info != None:
-        errors = main(info, closestBuilding)
+        errors = main(info, closestBuilding, True)
         res.append(np.sqrt(errors[0]))
         if errors != None and errors[1] > Max:
             Max = errors[1]
+plt.show()
 print(time.time() - start)
 plt.hist(res, range=(0, max(res)), bins=50)
 mseSurf = 0

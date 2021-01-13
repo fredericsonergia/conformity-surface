@@ -4,6 +4,7 @@ from archive import getVille, getData
 from conversion import buildingGPS2plan, gps2plan
 from coordinates import getLocationFromAddress
 from utils import getXY, distancePoint
+from getImage import plotOnImage
 import matplotlib.pyplot as plt
 import json
 
@@ -37,7 +38,6 @@ def main(info, closestFunction=closestCenter, doThePlot=False):
         return None
     print(ville, code)
     data = getData(code, MAJ)
-
     closest = closestFunction(coordinates, data)
     testClosest = closestFunction(testCoords, data)
     closestList = getClosestBuildings(coordinates, data, R)
@@ -45,15 +45,15 @@ def main(info, closestFunction=closestCenter, doThePlot=False):
     buildingCoords = extractCoordinates(testClosest)
     planCoords = buildingGPS2plan(coords)
     testPlanCoords = buildingGPS2plan(buildingCoords)
-    print(closest)
     surroundings = [buildingGPS2plan(extractCoordinates(close)) for close in closestList]
     computedSurf = surface(planCoords)
     print(testSurf, computedSurf)
     if doThePlot:
         print(planCoords)
         print(info, coordinates)
-        plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
-        plt.show()
+        plotOnImage(testCoords, buildingCoords)
+        # plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
+        # plt.show()
     # print(computedSurf, "m2")        
 
     return abs((testSurf-computedSurf)/testSurf), distanceTest**2
@@ -71,4 +71,5 @@ def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
     x, y = getXY(testPlanCoords)
     plt.plot(x,y, color='green')
 
-print(main(("adress", 1, (4.863327,45.853052)), closestBuilding,doThePlot=True))
+
+# print(main(("adress", 1, (4.70777,45.876799)), closestBuilding,doThePlot=True))
