@@ -1,7 +1,7 @@
-from conversion import gps2Lambert, gps2zone, getZone, lambert, degre2rad
-from archive import getVille
+from .conversion import gps2Lambert, gps2zone, getZone, lambert, degre2rad
+from .archive import getVille
 import matplotlib.pyplot as plt
-from PIL import Image 
+from PIL import Image
 import numpy as np
 import requests as rq
 
@@ -21,9 +21,11 @@ H = h/r
 def plotOnImage(coords, coordinates):
     bbox = getBbox(coords)
     getImage(w, h, coords)
-    img = Image.open(r'data/'+ stringify(coords) +'.png')
-    batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(coord[1]))) - np.array([coords[0] - 3, 0])  for coord in coordinates]
-    batX, batY = [r*(coord[0] - bbox[0]) for coord in batiment], [r*(coord[1] - bbox[1]) for coord in batiment]
+    img = Image.open(r'data/' + stringify(coords) + '.png')
+    batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(
+        coord[1]))) - np.array([coords[0] - 3, 0]) for coord in coordinates]
+    batX, batY = [r*(coord[0] - bbox[0]) for coord in batiment], [r *
+                                                                  (coord[1] - bbox[1]) for coord in batiment]
     fig, ax = plt.subplots()
     ax.imshow(img, extent=[0, w, 0, h])
     ax.plot(batX, batY, color='firebrick')
@@ -45,7 +47,9 @@ def plotOnImage(coords, coordinates):
 
 baseURL = "https://inspire.cadastre.gouv.fr/scpc/"
 
-availableLayers = ["AMORCES_CAD","CP.CadastralParcel","CLOTURE","DETAIL_TOPO","BU.Building","BORNE_REPERE","LIEUDIT","SUBFISCAL","HYDRO","VOIE_COMMUNICATION"]
+availableLayers = ["AMORCES_CAD", "CP.CadastralParcel", "CLOTURE", "DETAIL_TOPO",
+                   "BU.Building", "BORNE_REPERE", "LIEUDIT", "SUBFISCAL", "HYDRO", "VOIE_COMMUNICATION"]
+
 
 def getImage(w, h, coords, layersIndex=range(len(availableLayers))):
     layers = [availableLayers[i] for i in layersIndex]
@@ -53,11 +57,14 @@ def getImage(w, h, coords, layersIndex=range(len(availableLayers))):
     codeINSEE = getVille(coords)[1]
     w, h = str(w), str(h)
     bbox = getBbox(coords)
-    URL =  baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers="+ stringify(layers) +"&format=image/png&crs=EPSG:39"+ zone +"&bbox=" + stringify(bbox) + "&width="+w+"&height="+h+"&styles="
+    URL = baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers=" + \
+        stringify(layers) + "&format=image/png&crs=EPSG:39" + zone + \
+        "&bbox=" + stringify(bbox) + "&width="+w+"&height="+h+"&styles="
     res = rq.get(URL)
     with open("./data/" + stringify(coords)+".png", 'wb') as fp:
         fp.write(res.content)
     print("Image retrieved")
+
 
 def stringify(liste):
     res = ""
@@ -67,8 +74,9 @@ def stringify(liste):
             res += ","
     return res
 
+
 def getBbox(coords):
-    x,y = coords
+    x, y = coords
     X, Y = lambert(degre2rad(x), degre2rad(y))
     bbox = (X - W/2, Y - H/2, X + W/2, Y + H/2)
     return bbox

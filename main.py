@@ -26,6 +26,7 @@ def estimateSurface():
     info = getInfo(info)
 
     if doThePlot:
+        print(doThePlot)
         if closestFunction:
             print(closestFunction)
             surface = estimate_surface(info, closestFunction, True)
