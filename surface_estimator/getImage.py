@@ -1,9 +1,15 @@
+import os
+import requests as rq
+import numpy as np
+from PIL import Image
+from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 from .conversion import gps2Lambert, gps2zone, getZone, lambert, degre2rad
 from .archive import getVille
-import matplotlib.pyplot as plt
-from PIL import Image
-import numpy as np
-import requests as rq
+import matplotlib as mpl
+mpl.use('Agg')
+
 
 # get the image from the internet
 w = 800
@@ -14,14 +20,16 @@ r = 6
 W = w/r
 H = h/r
 
+folder = "static/"
 
 # x = 4.863412
 # y = 45.8529598
 
+
 def plotOnImage(coords, coordinates):
     bbox = getBbox(coords)
     getImage(w, h, coords)
-    img = Image.open(r'data/' + stringify(coords) + '.png')
+    img = Image.open(r'' + folder + stringify(coords) + '.png')
     batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(
         coord[1]))) - np.array([coords[0] - 3, 0]) for coord in coordinates]
     batX, batY = [r*(coord[0] - bbox[0]) for coord in batiment], [r *
@@ -30,6 +38,21 @@ def plotOnImage(coords, coordinates):
     ax.imshow(img, extent=[0, w, 0, h])
     ax.plot(batX, batY, color='firebrick')
     # plt.show()
+
+
+def getPlottedPlan(coords, coordinates):
+    bbox = getBbox(coords)
+    getImage(w, h, coords)
+    img = Image.open(r'' + folder + stringify(coords) + '.png')
+    batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(
+        coord[1]))) - np.array([coords[0] - 3, 0]) for coord in coordinates]
+    batX, batY = [r*(coord[0] - bbox[0]) for coord in batiment], [r *
+                                                                  (coord[1] - bbox[1]) for coord in batiment]
+    file_name = stringify(coords) + "_plotted"+".png"
+    fig, ax = plt.subplots()
+    ax.imshow(img, extent=[0, w, 0, h])
+    ax.plot(batX, batY, color='firebrick')
+    plt.savefig(folder + file_name)
 
 
 # x = 4.706264264112325
@@ -44,7 +67,6 @@ def plotOnImage(coords, coordinates):
 # print(1832443.79 - W/2, 5187772.12 -H/2, 1832443.79 + W/2, 5187772.12+H/2)
 # print(1832516.3385950415,5187700.467304348,1832609.49231405,5187744.497652174)
 # print(bbox)
-
 baseURL = "https://inspire.cadastre.gouv.fr/scpc/"
 
 availableLayers = ["AMORCES_CAD", "CP.CadastralParcel", "CLOTURE", "DETAIL_TOPO",
@@ -61,7 +83,10 @@ def getImage(w, h, coords, layersIndex=range(len(availableLayers))):
         stringify(layers) + "&format=image/png&crs=EPSG:39" + zone + \
         "&bbox=" + stringify(bbox) + "&width="+w+"&height="+h+"&styles="
     res = rq.get(URL)
-    with open("./data/" + stringify(coords)+".png", 'wb') as fp:
+    file_name = stringify(coords)+".png"
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    with open(folder + file_name, 'wb') as fp:
         fp.write(res.content)
     print("Image retrieved")
 

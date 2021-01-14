@@ -13,7 +13,6 @@ cors = CORS(app, resources={
 @app.route("/estimateSurface", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def estimateSurface():
-
     if not request.is_json:
         return "Request was not a JSON", 400
     req = request.get_json(force=True)
@@ -26,15 +25,12 @@ def estimateSurface():
     info = getInfo(info)
 
     if doThePlot:
-        print(doThePlot)
         if closestFunction:
-            print(closestFunction)
             surface = estimate_surface(info, closestFunction, True)
         else:
             surface = estimate_surface(info, doThePlot=True)
     else:
         if closestFunction:
-            print(closestFunction)
             surface = estimate_surface(info, closestFunction)
         else:
             surface = estimate_surface(info)

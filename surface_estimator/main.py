@@ -4,7 +4,7 @@ from .archive import getVille, getData
 from .conversion import buildingGPS2plan, gps2plan
 from .coordinates import getLocationFromAddress
 from .utils import getXY, distancePoint
-from .getImage import plotOnImage
+from .getImage import plotOnImage, getPlottedPlan
 import matplotlib.pyplot as plt
 import json
 
@@ -52,6 +52,7 @@ def main(info, closestFunction=closestCenter, doThePlot=False):
                     for close in closestList]
     computedSurf = surface(planCoords)
     print(testSurf, computedSurf)
+    getPlottedPlan(testCoords, buildingCoords)
     if doThePlot:
         print(planCoords)
         print(info, coordinates)
