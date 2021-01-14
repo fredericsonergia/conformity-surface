@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import requests
 import os
 import numpy as np
+import time
 
 # print("\033c")
 
@@ -44,6 +45,7 @@ def getVille(coordinates):
     return content["name"] if variant[:3] == "gpu" else content["nom_com"], content["insee"] if variant[:3] == "gpu" else content["code_insee"]
 
 def retrieveData(dep, output):
+    start = time.time()
     print("Downloading archive ... ")
     archivePath = 'cadastre-'+dep+'-batiments.json.gz'
     if len(dep) == 2:
@@ -74,8 +76,10 @@ def retrieveData(dep, output):
         os.remove("./data/" + archivePath)
     else:
         print("The file does not exist")
+    return time.time() - start
 
 def getData(dep, MAJ=False):
+    dt = 0
     output = "cadastre-"+dep+"-batiments.json"
     if not os.path.exists("data/" + output):
         open("data/" + output, "w")
@@ -86,13 +90,13 @@ def getData(dep, MAJ=False):
                 print("updating the data ... ")
             else:
                 print("retrieving data ...")
-            retrieveData(dep, output)
+            dt = retrieveData(dep, output)
             print("done")
         else:
             print("data already retrieved")
 
     with open("./data/" + output) as json_file:
         data = json.load(json_file)
-    return data
+    return data, dt
 
 

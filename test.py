@@ -32,17 +32,20 @@ def getInfos(line):
 infos = [getInfos(line) for line in lines]
 
 res = []
+DT = []
 Max = 0
 start = time.time()
 for info in infos:
     if info != None:
-        errors = main(info, closestBuilding, True)
+        errors = main(info, closestBuilding)
         res.append(np.sqrt(errors[0]))
+        DT.append(errors[1])
         if errors != None and errors[1] > Max:
             Max = errors[1]
-plt.show()
+# plt.show()
+plt.plot(DT)
 print(time.time() - start)
-plt.hist(res, range=(0, max(res)), bins=50)
+# plt.hist(res, range=(0, max(res)), bins=50)
 mseSurf = 0
 i = 0
 for errors in res:

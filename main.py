@@ -37,7 +37,7 @@ def main(info, closestFunction=closestCenter, doThePlot=False):
         print("City not found")
         return None
     print(ville, code)
-    data = getData(code, MAJ)
+    data, dt = getData(code, MAJ)
     closest = closestFunction(coordinates, data)
     testClosest = closestFunction(testCoords, data)
     closestList = getClosestBuildings(coordinates, data, R)
@@ -56,7 +56,7 @@ def main(info, closestFunction=closestCenter, doThePlot=False):
         # plt.show()
     # print(computedSurf, "m2")        
 
-    return abs((testSurf-computedSurf)/testSurf), distanceTest**2
+    return abs((testSurf-computedSurf)/testSurf), dt
     
 def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
     for building in surroundings:
