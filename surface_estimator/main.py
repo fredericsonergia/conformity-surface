@@ -1,5 +1,10 @@
 from .calcul import surface
-from .closest import closestBuilding, getClosestBuildings, extractCoordinates, closestCenter
+from .closest import (
+    closestBuilding,
+    getClosestBuildings,
+    extractCoordinates,
+    closestCenter,
+)
 from .archive import getVille, getData
 from .conversion import buildingGPS2plan, gps2plan
 from .coordinates import getLocationFromAddress
@@ -10,15 +15,16 @@ import json
 maxDist = 50
 
 # address = input("Entrez votre adresse ('' = géolocalisation) : ")
-def main(info, closestFunction, doThePlot=False):
+def main(info, closestFunction=closestCenter, doThePlot=False):
     address, testSurf, testCoords = info
-    if address != '':
+    if address != "":
         coordinates = getLocationFromAddress(address)
-        if coordinates == None: 
+        if coordinates == None:
             print(address)
             coordinates = testCoords
-    else: 
+    else:
         from preciseCoordinates import coordinates as coord
+
         coordinates = coord
     # coordinates1 = [2.1378258,43.92235001023937]
     # coordinates = [2.1378258,48.882290575830936]
@@ -46,32 +52,33 @@ def main(info, closestFunction, doThePlot=False):
     planCoords = buildingGPS2plan(coords)
     testPlanCoords = buildingGPS2plan(buildingCoords)
 
-    surroundings = [buildingGPS2plan(extractCoordinates(close)) for close in closestList]
+    surroundings = [
+        buildingGPS2plan(extractCoordinates(close)) for close in closestList
+    ]
     computedSurf = surface(planCoords)
     print(testSurf, computedSurf)
-    if abs((testSurf-computedSurf))/testSurf > .25:
+    if abs((testSurf - computedSurf)) / testSurf > 0.25:
         print("")
-    else: 
-        if doThePlot and (testSurf-computedSurf)/testSurf > .1:
+    else:
+        if doThePlot and (testSurf - computedSurf) / testSurf > 0.1:
             print(planCoords)
             print(info, coordinates)
             plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
             plt.show()
-    # print(computedSurf, "m2")        
+    # print(computedSurf, "m2")
 
-    return abs((testSurf-computedSurf)/testSurf), distanceTest**2
-    
+    return str(computedSurf)
+
+
 def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
     for building in surroundings:
-        x,y = getXY(building)
-        plt.plot(x,y, color='blue')
+        x, y = getXY(building)
+        plt.plot(x, y, color="blue")
 
     plt.scatter(gps2plan(coordinates)[0], gps2plan(coordinates)[1], color="red")
     plt.scatter(gps2plan(testCoords)[0], gps2plan(testCoords)[1], color="green")
 
     x, y = getXY(planCoords)
-    plt.plot(x,y, color='red')
+    plt.plot(x, y, color="red")
     x, y = getXY(testPlanCoords)
-    plt.plot(x,y, color='green')
-
- 
+    plt.plot(x, y, color="green")
