@@ -1,4 +1,3 @@
-
 import geocoder
 
 def getLocationFromAddress(address):

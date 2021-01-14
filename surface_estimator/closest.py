@@ -1,8 +1,8 @@
 import numpy as np
-from conversion import gps2plan, buildingGPS2plan
-from utils import distancePoint, getXY
-from calcul import point_dans_polygone
-from arbrekd import plus_proche_voisin
+from .conversion import gps2plan, buildingGPS2plan
+from .utils import distancePoint, getXY
+from .calcul import point_dans_polygone
+from .arbrekd import plus_proche_voisin
 
 
 def distanceBatiment(point, batiment):
