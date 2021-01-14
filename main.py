@@ -1,75 +1,56 @@
-from calcul import surface
-from closest import closestBuilding, getClosestBuildings, extractCoordinates, closestCenter
-from archive import getVille, getData
-from conversion import buildingGPS2plan, gps2plan
-from coordinates import getLocationFromAddress
-from utils import getXY, distancePoint
-from getImage import plotOnImage
-import matplotlib.pyplot as plt
-import json
+from flask import Flask, request, Response
+from flask_cors import cross_origin, CORS
+from surface_estimator import estimate_surface
 
-maxDist = 50
+app = Flask(__name__)
+app.config["SECRET_KEY"] = "the quick brown fox jumps over the lazy   dog"
+app.config["CORS_HEADERS"] = "Content-Type"
 
-# address = input("Entrez votre adresse ('' = géolocalisation) : ")
-def main(info, closestFunction=closestCenter, doThePlot=False):
-    address, testSurf, testCoords = info
-    if address != '':
-        coordinates = getLocationFromAddress(address)
-        if coordinates == None: 
-            print(address)
-            coordinates = testCoords
-    else: 
-        from preciseCoordinates import coordinates as coord
-        coordinates = coord
-    # coordinates1 = [2.1378258,43.92235001023937]
-    # coordinates = [2.1378258,48.882290575830936]
-    MAJ = False
-    R = 100
-    coordinates = testCoords
+cors = CORS(app, resources={
+            r"/estimateSurface": {"origins": "http://localhost:8080"}})
 
-    distanceTest = distancePoint(gps2plan(testCoords), gps2plan(coordinates))
-    if distanceTest > R:
-        coordinates = testCoords
-        distanceTest = distancePoint(gps2plan(testCoords), gps2plan(coordinates))
 
-    ville, code = getVille(coordinates)
-    if ville == None or code == None:
-        print("City not found")
-        return None
-    print(ville, code)
-    data, dt = getData(code, MAJ)
-    closest = closestFunction(coordinates, data)
-    testClosest = closestFunction(testCoords, data)
-    closestList = getClosestBuildings(coordinates, data, R)
-    coords = extractCoordinates(closest)
-    buildingCoords = extractCoordinates(testClosest)
-    planCoords = buildingGPS2plan(coords)
-    testPlanCoords = buildingGPS2plan(buildingCoords)
-    surroundings = [buildingGPS2plan(extractCoordinates(close)) for close in closestList]
-    computedSurf = surface(planCoords)
-    print(testSurf, computedSurf)
+@app.route("/estimateSurface", methods=["POST"])
+@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
+def estimateSurface():
+
+    if not request.is_json:
+        return "Request was not a JSON", 400
+    req = request.get_json(force=True)
+
+    info, closestFunction, doThePlot = (
+        req["info"],
+        req["closestFunction"],
+        req["doThePlot"],
+    )
+    info = getInfo(info)
+
     if doThePlot:
-        print(planCoords)
-        print(info, coordinates)
-        plotOnImage(testCoords, buildingCoords)
-        # plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
-        # plt.show()
-    # print(computedSurf, "m2")        
-
-    return abs((testSurf-computedSurf)/testSurf), dt
-    
-def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
-    for building in surroundings:
-        x,y = getXY(building)
-        plt.plot(x,y, color='blue')
-
-    plt.scatter(gps2plan(coordinates)[0], gps2plan(coordinates)[1], color="red")
-    plt.scatter(gps2plan(testCoords)[0], gps2plan(testCoords)[1], color="green")
-
-    x, y = getXY(planCoords)
-    plt.plot(x,y, color='red')
-    x, y = getXY(testPlanCoords)
-    plt.plot(x,y, color='green')
+        if closestFunction:
+            print(closestFunction)
+            surface = estimate_surface(info, closestFunction, True)
+        else:
+            surface = estimate_surface(info, doThePlot=True)
+    else:
+        if closestFunction:
+            print(closestFunction)
+            surface = estimate_surface(info, closestFunction)
+        else:
+            surface = estimate_surface(info)
+    response = Response(surface)
+    return response
 
 
-# print(main(("adress", 1, (4.70777,45.876799)), closestBuilding,doThePlot=True))
+def getInfo(info):
+    info = info[1:-1].split(",")
+    address = info[0]
+    testSurf = float(info[1])
+    coordinates = info[2] + "," + info[3]
+    coordinates = coordinates[1:-1].split(",")
+    coordinates = (float(coordinates[0]), float(coordinates[1]))
+    info = [address, testSurf, coordinates]
+    return info
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

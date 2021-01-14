@@ -1,4 +1,4 @@
-from utils import distancePoint
+from .utils import distancePoint
 import numpy as np
 
 def voisin_sommet(n,i,di):
