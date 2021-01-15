@@ -51,20 +51,25 @@ def n(zone):
     phi2 = (zone + 0.75) * np.pi / 180
     n1 = np.log(np.cos(phi1)/np.cos(phi2)) + 1/2 * \
         np.log((1 - e**2 * np.sin(phi1)**2)/(1 - e**2 * np.sin(phi2)**2))
-    n2 = np.log(np.tan(phi1/2 + np.pi/4)/np.tan(phi2/2 + np.pi/4) * (((1 - e*np.sin(phi1))/(1 - e*np.sin(phi2)))**(e/2)) * (((1 + e*np.sin(phi2))/(1 + e*np.sin(phi1)))**(e/2)))
+    n2 = np.log(np.tan(phi1/2 + np.pi/4)/np.tan(phi2/2 + np.pi/4) * (((1 - e*np.sin(phi1)) /
+                                                                      (1 - e*np.sin(phi2)))**(e/2)) * (((1 + e*np.sin(phi2))/(1 + e*np.sin(phi1)))**(e/2)))
     return n1 / n2
 
 # print(n(46))
+
 
 def rho0(zone):
     phi1 = (zone - 0.75) * np.pi / 180
     phi2 = (zone + 0.75) * np.pi / 180
     rho1 = a * np.cos(phi1)/(n(zone) * np.sqrt((1 - (e * np.sin(phi1))**2)))
-    rho2 = (np.tan(phi1/2 + np.pi/4) * ((1 - e * np.sin(phi1))/ (1 + e * np.sin(phi1)))**(e/2)) ** n(zone)
+    rho2 = (np.tan(phi1/2 + np.pi/4) * ((1 - e * np.sin(phi1)) /
+                                        (1 + e * np.sin(phi1)))**(e/2)) ** n(zone)
     return rho1*rho2
 
+
 def rho(phi, zone):
-    rho1 = (1 / np.tan(phi/2 + np.pi/4) * ((1 + e * np.sin(phi)) / (1 - e * np.sin(phi)))**(e/2)) ** n(zone)
+    rho1 = (1 / np.tan(phi/2 + np.pi/4) * ((1 + e * np.sin(phi)) /
+                                           (1 - e * np.sin(phi)))**(e/2)) ** n(zone)
     return rho1*rho0(zone)
 
 # print(rho0(42))
@@ -87,8 +92,9 @@ def gps2zone(coordinatesDegre):
     x = (R0 - RT * np.sin(phi)) * np.sin(psi) + X0
     return x, y
 
+
 def gps2Lambert(coordinatesDegre):
-    zone = getZone(coordinatesDegre) 
+    zone = getZone(coordinatesDegre)
     zone = 46
     lng, lat = coordinatesDegre
     X0 = 1700000
@@ -101,13 +107,16 @@ def gps2Lambert(coordinatesDegre):
     Rho0 = rho(phi0, zone)
     X = X0 + Rho * np.sin(theta)
     Y = Y0 + Rho0 - Rho * np.cos(theta)
-    return X,Y
+    return X, Y
+
 
 def latitudeIso(phi):
     return np.log((np.tan(np.pi/4 + phi/2))*((1-e*np.sin(phi))/(1+e*np.sin(phi)))**(e/2))
 
+
 def grande_normale(phi):
     return a / np.sqrt(1 - e**2 * np.sin(phi)**2)
+
 
 def lambert(lmb, phi):
     L = latitudeIso(phi)
@@ -123,8 +132,10 @@ def lambert(lmb, phi):
     Y = Ys - C * np.exp(- n * L) * np.cos(n * (lmb - lmb0))
     return X, Y
 
-def parametres_de_projection(phi0, lmb0, phi1, phi2, X0,Y0):
-    n = (np.log((grande_normale(phi2)*np.cos(phi2))/(grande_normale(phi1)*np.cos(phi1))))/(latitudeIso(phi1) - latitudeIso(phi2))
+
+def parametres_de_projection(phi0, lmb0, phi1, phi2, X0, Y0):
+    n = (np.log((grande_normale(phi2)*np.cos(phi2))/(grande_normale(phi1)
+                                                     * np.cos(phi1))))/(latitudeIso(phi1) - latitudeIso(phi2))
     C = grande_normale(phi1) * np.cos(phi1)/n * np.exp(n * latitudeIso(phi1))
     Xs, Ys = X0, Y0
     if abs(phi0 - np.pi/2) < 1E-4:
@@ -133,6 +144,7 @@ def parametres_de_projection(phi0, lmb0, phi1, phi2, X0,Y0):
         Xs = X0
         Ys = Y0 + C * np.exp(-n*latitudeIso(phi0))
     return n, C, Xs, Ys
+
 
 def degre2rad(angle):
     return angle*np.pi/180

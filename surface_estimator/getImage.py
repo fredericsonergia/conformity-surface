@@ -26,9 +26,9 @@ folder = "static/"
 # y = 45.8529598
 
 
-def plotOnImage(coords, coordinates):
+def plotOnImage(coords, coordinates, code):
     bbox = getBbox(coords)
-    getImage(w, h, coords)
+    getImage(w, h, coords, code)
     img = Image.open(r'' + folder + stringify(coords) + '.png')
     batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(
         coord[1]))) - np.array([coords[0] - 3, 0]) for coord in coordinates]
@@ -40,9 +40,9 @@ def plotOnImage(coords, coordinates):
     # plt.show()
 
 
-def getPlottedPlan(coords, coordinates):
+def getPlottedPlan(coords, coordinates, code):
     bbox = getBbox(coords)
-    getImage(w, h, coords)
+    getImage(w, h, coords, code)
     img = Image.open(r'' + folder + stringify(coords) + '.png')
     batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(
         coord[1]))) - np.array([coords[0] - 3, 0]) for coord in coordinates]
@@ -74,10 +74,10 @@ availableLayers = ["AMORCES_CAD", "CP.CadastralParcel", "CLOTURE", "DETAIL_TOPO"
                    "BU.Building", "BORNE_REPERE", "LIEUDIT", "SUBFISCAL", "HYDRO", "VOIE_COMMUNICATION"]
 
 
-def getImage(w, h, coords, layersIndex=range(len(availableLayers))):
+def getImage(w, h, coords, code, layersIndex=range(len(availableLayers))):
     layers = [availableLayers[i] for i in layersIndex]
     zone = str(getZone(coords))
-    codeINSEE = getVille(coords)[1]
+    codeINSEE = code
     w, h = str(w), str(h)
     bbox = getBbox(coords)
     URL = baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers=" + \

@@ -1,8 +1,8 @@
 import numpy as np
 from surface_estimator.coordonnees.conversion import gps2plan, buildingGPS2plan
 from surface_estimator.utils import distancePoint, getXY
-from surface_estimator.algorithmes.calcul_surface import point_dans_polygone
-from surface_estimator.algorithmes.arbrekd import plus_proche_voisin
+from .calcul_surface import point_dans_polygone
+from .arbrekd import plus_proche_voisin
 
 
 def distanceBatiment(point, batiment):

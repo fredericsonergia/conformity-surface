@@ -2,7 +2,7 @@
 from main import main
 import numpy as np
 import matplotlib.pyplot as plt
-from .closest import closestBuilding, closestCenter
+from .algorithmes.closest import closestBuilding, closestCenter
 import time
 
 with open("./test_data/201216_Fichier Cadastre surface.csv", 'r') as f:
