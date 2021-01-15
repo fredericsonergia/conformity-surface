@@ -5,8 +5,8 @@ from PIL import Image
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
-from .conversion import gps2Lambert, gps2zone, getZone, lambert, degre2rad
-from .archive import getVille
+from .coordonnees.conversion import gps2Lambert, gps2zone, getZone, lambert, degre2rad
+from .IGN_API import getVille
 import matplotlib as mpl
 mpl.use('Agg')
 

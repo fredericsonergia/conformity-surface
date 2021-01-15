@@ -1,8 +1,8 @@
-from .calcul import surface
-from .closest import closestBuilding, getClosestBuildings, extractCoordinates, closestCenter
-from .archive import getVille, getData
-from .conversion import buildingGPS2plan, gps2plan
-from .coordinates import getLocationFromAddress
+from .algorithmes.calcul_surface import surface
+from .algorithmes.closest import closestBuilding, getClosestBuildings, extractCoordinates, closestCenter
+from .IGN_API import getVille, getData
+from .coordonnees.conversion import buildingGPS2plan, gps2plan
+from .coordonnees.coordinates import getLocationFromAddress
 from .utils import getXY, distancePoint
 from .getImage import plotOnImage, getPlottedPlan
 import matplotlib.pyplot as plt

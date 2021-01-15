@@ -1,4 +1,4 @@
-from .utils import distancePoint
+from surface_estimator.utils import distancePoint
 import numpy as np
 
 

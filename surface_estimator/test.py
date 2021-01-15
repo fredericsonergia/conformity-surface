@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from .closest import closestBuilding, closestCenter
 import time
 
-with open("201216_Fichier Cadastre surface.csv", 'r') as f:
+with open("./test_data/201216_Fichier Cadastre surface.csv", 'r') as f:
     lines = f.readlines()
 
 
