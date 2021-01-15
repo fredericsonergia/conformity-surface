@@ -52,7 +52,8 @@ def getPlottedPlan(coords, coordinates):
     fig, ax = plt.subplots()
     ax.imshow(img, extent=[0, w, 0, h])
     ax.plot(batX, batY, color='firebrick')
-    plt.savefig(folder + file_name)
+    plt.axis('off')
+    plt.savefig(folder + file_name, bbox_inches='tight')
 
 
 # x = 4.706264264112325

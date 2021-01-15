@@ -23,7 +23,7 @@ def estimateSurface():
         req["doThePlot"],
     )
     info = getInfo(info)
-
+    print(info)
     if doThePlot:
         if closestFunction:
             surface = estimate_surface(info, closestFunction, True)
@@ -39,11 +39,10 @@ def estimateSurface():
 
 
 def getInfo(info):
-    info = info[1:-1].split(",")
+    info = info[1:-1].split(";")
     address = info[0]
     testSurf = float(info[1])
-    coordinates = info[2] + "," + info[3]
-    coordinates = coordinates[1:-1].split(",")
+    coordinates = info[-1][1:-1].split(",")
     coordinates = (float(coordinates[0]), float(coordinates[1]))
     info = [address, testSurf, coordinates]
     return info

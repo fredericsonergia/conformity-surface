@@ -27,13 +27,14 @@ def main(info, closestFunction=closestCenter, doThePlot=False):
     # coordinates = [2.1378258,48.882290575830936]
     MAJ = False
     R = 100
-    coordinates = testCoords
-
-    distanceTest = distancePoint(gps2plan(testCoords), gps2plan(coordinates))
-    if distanceTest > R:
+    if address == "address":
         coordinates = testCoords
-        distanceTest = distancePoint(
-            gps2plan(testCoords), gps2plan(coordinates))
+
+    # distanceTest = distancePoint(gps2plan(testCoords), gps2plan(coordinates))
+    # if distanceTest > R:
+    #     coordinates = testCoords
+    #     distanceTest = distancePoint(
+    #         gps2plan(testCoords), gps2plan(coordinates))
 
     ville, code = getVille(coordinates)
     if ville == None or code == None:
@@ -42,26 +43,24 @@ def main(info, closestFunction=closestCenter, doThePlot=False):
     print(ville, code)
     data, dt = getData(code, MAJ)
     closest = closestFunction(coordinates, data)
-    testClosest = closestFunction(testCoords, data)
     closestList = getClosestBuildings(coordinates, data, R)
     coords = extractCoordinates(closest)
-    buildingCoords = extractCoordinates(testClosest)
+    buildingCoords = extractCoordinates(closest)
     planCoords = buildingGPS2plan(coords)
     testPlanCoords = buildingGPS2plan(buildingCoords)
     surroundings = [buildingGPS2plan(extractCoordinates(close))
                     for close in closestList]
     computedSurf = surface(planCoords)
     print(testSurf, computedSurf)
-    getPlottedPlan(testCoords, buildingCoords)
+    getPlottedPlan(coordinates, buildingCoords)
     if doThePlot:
         print(planCoords)
         print(info, coordinates)
-        plotOnImage(testCoords, buildingCoords)
+        plotOnImage(coordinates, buildingCoords)
         # plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
         # plt.show()
     # print(computedSurf, "m2")
-
-    return str(computedSurf)
+    return str(computedSurf), str(list(coordinates))
 
 
 def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
