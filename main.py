@@ -23,10 +23,11 @@ def estimateSurface_coords():
         return "Request was not a JSON", 400
     req = request.get_json(force=True)
     coordinates = [float(coord) for coord in req["coordinates"].split(',')]
+    w, h = 800, 400
     controller = SurfaceController()
     controller.set_coordinates(coordinates)
     controller.set_surface()
-    controller.get_image()
+    controller.get_image(w, h)
     response = [controller.computedSurf, controller.coordinates]
     return Response(str(response))
 
@@ -38,10 +39,11 @@ def estimateSurface_address():
         return "Request was not a JSON", 400
     req = request.get_json(force=True)
     address = req["address"]
+    w, h = 800, 400
     controller = SurfaceController()
     controller.set_address(address)
     controller.set_surface()
-    controller.get_image()
+    controller.get_image(w, h)
     response = [controller.computedSurf, controller.coordinates]
     return Response(str(response))
 

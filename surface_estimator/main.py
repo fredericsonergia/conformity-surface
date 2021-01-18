@@ -4,7 +4,7 @@ from .IGN_API import getVille, getData
 from .coordonnees.conversion import buildingGPS2plan, gps2plan
 from .coordonnees.coordinates import getLocationFromAddress
 from .coordonnees.preciseCoordinates import getLocation
-from .utils import getXY, distancePoint
+from .utils import getXY, distancePoint, taille
 from .getImage import plotOnImage, getPlottedPlan
 import matplotlib.pyplot as plt
 import json
@@ -71,7 +71,7 @@ class SurfaceController():
     def compare(self, givenSurface):
         if self.computedSurf is None:
             self.set_surface()
-        return givenSurface < self.computedSurf
+        return abs(givenSurface - self.computedSurf)/givenSurface
 
     def get_surroundings(self, radius):
         closestList = getClosestBuildings(self.coordinates, self.data, radius)
@@ -79,13 +79,22 @@ class SurfaceController():
                         for close in closestList]
         return surroundings
 
-    def get_image(self):
+    def get_ratio(self, w, h):
         buildingcoords = extractCoordinates(self.closest)
-        getPlottedPlan(self.coordinates, buildingcoords, self.code)
+        planCoords = buildingGPS2plan(buildingcoords)
+        DX, DY = taille(planCoords)
+        r = min(h/(2*DY), w/(2*DX), 6)
+        return r
 
-    def doThePlot(self):
+    def get_image(self, w, h):
+        r = self.get_ratio(w, h)
         buildingcoords = extractCoordinates(self.closest)
-        plotOnImage(self.coordinates, buildingcoords, self.code)
+        getPlottedPlan(self.coordinates, buildingcoords, self.code, r, w, h)
+
+    def doThePlot(self, w, h):
+        r = self.get_ratio(w, h)
+        buildingcoords = extractCoordinates(self.closest)
+        plotOnImage(self.coordinates, buildingcoords, self.code, r, w, h)
 
 
 def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):

@@ -1,11 +1,13 @@
 
-from main import main
-import numpy as np
-import matplotlib.pyplot as plt
-from .algorithmes.closest import closestBuilding, closestCenter
 import time
+from .algorithmes.closest import closestBuilding, closestCenter
+import matplotlib.pyplot as plt
+from .main import SurfaceController
+import numpy as np
+import matplotlib as mpl
+mpl.use('MacOSX')
 
-with open("./test_data/201216_Fichier Cadastre surface.csv", 'r') as f:
+with open("./surface_estimator/test_data/201216_Fichier Cadastre surface.csv", 'r') as f:
     lines = f.readlines()
 
 
@@ -41,20 +43,30 @@ Max = 0
 start = time.time()
 for info in infos:
     if info != None:
-        errors = main(info, closestBuilding)
-        res.append(np.sqrt(errors[0]))
-        DT.append(errors[1])
-        if errors != None and errors[1] > Max:
-            Max = errors[1]
-# plt.show()
-plt.plot(DT)
+        controller = SurfaceController()
+        controller.set_coordinates(info[2])
+        controller.set_surface()
+        error = controller.compare(info[1])
+        res.append(error)
+        DT.append(controller.dt)
+#     # plt.show()
 print(time.time() - start)
-# plt.hist(res, range=(0, max(res)), bins=50)
+
+print("Temps : ")
+
+plt.hist(DT, range=(0, max(DT)), bins=50)
+plt.xlabel('Temps de récupération des données')
+plt.ylabel('Nombre de cas')
+plt.show()
+
+plt.hist(res, range=(0, 1), bins=50)
+plt.xlabel('Erreur relative')
+plt.ylabel('Nombre de cas')
 mseSurf = 0
 i = 0
 for errors in res:
     if errors != None:
-        mseSurf += errors
+        mseSurf += errors**2
         i += 1
 # print(np.sqrt(Max))
 print(np.sqrt(mseSurf)/i)
