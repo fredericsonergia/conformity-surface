@@ -49,7 +49,6 @@ for info in infos:
         error = controller.compare(info[1])
         res.append(error)
         DT.append(controller.dt)
-#     # plt.show()
 print(time.time() - start)
 
 print("Temps : ")
@@ -68,11 +67,8 @@ for errors in res:
     if errors != None:
         mseSurf += errors**2
         i += 1
-# print(np.sqrt(Max))
 print(np.sqrt(mseSurf)/i)
 plt.show()
-# print(np.sqrt(mseCoord)/i)
 
 
 print("\n DONE \n")
-# print(res)

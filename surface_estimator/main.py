@@ -11,8 +11,6 @@ import json
 
 maxDist = 50
 
-# address = input("Entrez votre adresse ('' = géolocalisation) : ")
-
 
 class SurfaceController():
     def __init__(self, closestFunction=closestBuilding, MAJ=False):
@@ -89,12 +87,20 @@ class SurfaceController():
     def get_image(self, w, h):
         r = self.get_ratio(w, h)
         buildingcoords = extractCoordinates(self.closest)
-        getPlottedPlan(self.coordinates, buildingcoords, self.code, r, w, h)
+        n = len(buildingcoords)
+        center = [sum([coord[0] for coord in buildingcoords])/n,
+                  sum([coord[1] for coord in buildingcoords])/n]
+        self.image_coordinates = center
+        getPlottedPlan(center, buildingcoords, self.code, r, w, h)
 
     def doThePlot(self, w, h):
         r = self.get_ratio(w, h)
         buildingcoords = extractCoordinates(self.closest)
-        plotOnImage(self.coordinates, buildingcoords, self.code, r, w, h)
+        n = len(buildingcoords)
+        center = [sum([coord[0] for coord in buildingcoords])/n,
+                  sum([coord[1] for coord in buildingcoords])/n]
+        self.image_coordinates = center
+        plotOnImage(center, buildingcoords, self.code, r, w, h)
 
 
 def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
@@ -111,6 +117,3 @@ def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
     plt.plot(x, y, color='red')
     x, y = getXY(testPlanCoords)
     plt.plot(x, y, color='green')
-
-
-# print(main(("adress", 1, (4.70777, 45.876799)), closestBuilding, doThePlot=True))

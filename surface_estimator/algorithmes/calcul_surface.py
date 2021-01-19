@@ -114,10 +114,3 @@ def surface(batiment):
         triangles = trianguler_polygone(batiment)
         surfaces_triangles = [surface(triangle) for triangle in triangles]
         return sum(surfaces_triangles)
-
-
-triangle = [[0, 0], [0, 1], [1, 0]]
-carre = [[0, 0], [0, 1], [1, 0], [1, 1]]
-
-polygone = [[0, 0], [0.5, -1], [1.5, -0.2],
-            [2, -0.5], [2, 0], [1.5, 1], [0.3, 0, ], [0.5, 1]]

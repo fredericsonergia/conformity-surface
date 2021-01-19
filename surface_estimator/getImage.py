@@ -22,9 +22,6 @@ H = h/r
 
 folder = "./static/"
 
-# x = 4.863412
-# y = 45.8529598
-
 
 def plotOnImage(coords, coordinates, code, r, width, height):
     W = width/r
@@ -60,18 +57,6 @@ def getPlottedPlan(coords, coordinates, code, r, width, height):
     plt.savefig(folder + file_name, bbox_inches='tight')
 
 
-# x = 4.706264264112325
-# y = 45.87721353563377
-
-
-# X, Y = lambert(degre2rad(x), degre2rad(y))
-# print(X,Y)
-
-# bbox = (X - W/2, Y - H/2, X + W/2, Y + H/2)
-# bbox = (1636355.34,8186674.09,1636488.6733333333,8186740.756666667)
-# print(1832443.79 - W/2, 5187772.12 -H/2, 1832443.79 + W/2, 5187772.12+H/2)
-# print(1832516.3385950415,5187700.467304348,1832609.49231405,5187744.497652174)
-# print(bbox)
 baseURL = "https://inspire.cadastre.gouv.fr/scpc/"
 
 availableLayers = ["AMORCES_CAD", "CP.CadastralParcel", "CLOTURE", "DETAIL_TOPO",
@@ -112,6 +97,3 @@ def getBbox(coords, W, H):
     X, Y = lambert(degre2rad(x), degre2rad(y))
     bbox = (X - W/2, Y - H/2, X + W/2, Y + H/2)
     return bbox
-# coords = x, y
-
-# getImage(w,h,coords)

@@ -6,11 +6,7 @@ a = a - 209.75
 b = 6356752
 
 RT = 6371008
-# f = 1/298.257223563
-# print(f)
-# RT = 6368189.6
-# a = RT + 7129
-# b = RT - 7129
+
 
 f = (a-b)/a
 e = np.sqrt(1 - (b/a)**2)
@@ -37,12 +33,6 @@ def getZone(coordinatesDegre):
         if abs(lat - i) < mini:
             mini = abs(lat - i)
             zone = i
-        # if abs(lat - (i + 0.75)) < mini:
-        #     mini = abs(lat - (i + 0.75))
-        #     zone = i
-        # if abs(lat - (i - 0.75)) < mini:
-        #     mini = abs(lat - (i - 0.75))
-        #     zone = i
     return zone
 
 
@@ -71,10 +61,6 @@ def rho(phi, zone):
     rho1 = (1 / np.tan(phi/2 + np.pi/4) * ((1 + e * np.sin(phi)) /
                                            (1 - e * np.sin(phi)))**(e/2)) ** n(zone)
     return rho1*rho0(zone)
-
-# print(rho0(42))
-
-# print(rho(42.2*np.pi/180,42))
 
 
 def gps2zone(coordinatesDegre):
@@ -148,14 +134,3 @@ def parametres_de_projection(phi0, lmb0, phi1, phi2, X0, Y0):
 
 def degre2rad(angle):
     return angle*np.pi/180
-# print(e)
-# print(lambert(0.14551209900, 0.87266462600))
-# print(parametres_de_projection(1.57079632700, 0.07623554539, 0.86975574400, 0.89302680100, 150000.0000, 5400000.0000))
-
-# X1, Y1 = gps2Lambert((3, 46))
-# X2, Y2 = gps2zone((4.863327, 45.853052))
-# print((X1,Y1),(X2,Y2))
-
-# for i in range(4525, 4680, 5):
-#     print(lambert(degre2rad(3), degre2rad(i/100))[1], end='')
-#     print('')

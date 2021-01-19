@@ -10,12 +10,6 @@ cors = CORS(app, resources={
             r"/estimateSurface/coordinates": {"origins": "http://localhost:8080"}})
 
 
-class SurfaceResponse():
-    def __init__(self, controller: SurfaceController):
-        self.surface = controller.computedSurf
-        self.coordinates = controller.coordinates
-
-
 @app.route("/estimateSurface/coordinates", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
 def estimateSurface_coords():
@@ -28,7 +22,7 @@ def estimateSurface_coords():
     controller.set_coordinates(coordinates)
     controller.set_surface()
     controller.get_image(w, h)
-    response = [controller.computedSurf, controller.coordinates]
+    response = [controller.computedSurf, controller.image_coordinates]
     return Response(str(response))
 
 
@@ -44,18 +38,8 @@ def estimateSurface_address():
     controller.set_address(address)
     controller.set_surface()
     controller.get_image(w, h)
-    response = [controller.computedSurf, controller.coordinates]
+    response = [controller.computedSurf, controller.image_coordinates]
     return Response(str(response))
-
-
-def getInfo(info):
-    info = info[1:-1].split(";")
-    address = info[0]
-    testSurf = float(info[1])
-    coordinates = info[-1][1:-1].split(",")
-    coordinates = (float(coordinates[0]), float(coordinates[1]))
-    info = [address, testSurf, coordinates]
-    return info
 
 
 if __name__ == "__main__":
