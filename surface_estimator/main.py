@@ -1,84 +1,119 @@
-from .calcul import surface
-from .closest import (
-    closestBuilding,
-    getClosestBuildings,
-    extractCoordinates,
-    closestCenter,
-)
-from .archive import getVille, getData
-from .conversion import buildingGPS2plan, gps2plan
-from .coordinates import getLocationFromAddress
-from .utils import getXY, distancePoint
+from .algorithmes.calcul_surface import surface
+from .algorithmes.closest import closestBuilding, getClosestBuildings, extractCoordinates, closestCenter
+from .IGN_API import getVille, getData
+from .coordonnees.conversion import buildingGPS2plan, gps2plan
+from .coordonnees.coordinates import getLocationFromAddress
+from .coordonnees.preciseCoordinates import getLocation
+from .utils import getXY, distancePoint, taille
+from .getImage import plotOnImage, getPlottedPlan
 import matplotlib.pyplot as plt
 import json
 
 maxDist = 50
 
-# address = input("Entrez votre adresse ('' = géolocalisation) : ")
-def main(info, closestFunction=closestCenter, doThePlot=False):
-    address, testSurf, testCoords = info
-    if address != "":
-        coordinates = getLocationFromAddress(address)
-        if coordinates == None:
-            print(address)
-            coordinates = testCoords
-    else:
-        from preciseCoordinates import coordinates as coord
 
-        coordinates = coord
-    # coordinates1 = [2.1378258,43.92235001023937]
-    # coordinates = [2.1378258,48.882290575830936]
-    MAJ = False
-    R = 100
-    coordinates = testCoords
+class SurfaceController():
+    def __init__(self, closestFunction=closestBuilding, MAJ=False):
+        self.MAJ = MAJ
+        self.closestFunction = closestFunction
+        self.coordinates = None
+        self.ville = None
+        self.code = None
+        self.data = None
+        self.dt = None
+        self.address = None
+        self.closest = None
+        self.computedSurf = None
 
-    distanceTest = distancePoint(gps2plan(testCoords), gps2plan(coordinates))
-    if distanceTest > R:
-        coordinates = testCoords
-        distanceTest = distancePoint(gps2plan(testCoords), gps2plan(coordinates))
+    def update(self):
+        self.set_ville()
+        self.set_ville_data()
+        self.set_closest()
 
-    ville, code = getVille(coordinates)
-    if ville == None or code == None:
-        print("City not found")
-        return None
-    print(ville, code)
-    data = getData(code, MAJ)
+    def set_ville(self):
+        ville, code = getVille(self.coordinates)
+        self.ville = ville
+        self.code = code
+        if self.ville == None or self.code == None:
+            print("City not found")
+        return -1
 
-    closest = closestFunction(coordinates, data)
-    testClosest = closestFunction(testCoords, data)
-    closestList = getClosestBuildings(coordinates, data, R)
-    coords = extractCoordinates(closest)
-    buildingCoords = extractCoordinates(testClosest)
-    planCoords = buildingGPS2plan(coords)
-    testPlanCoords = buildingGPS2plan(buildingCoords)
+    def set_ville_data(self):
+        self.data, self.dt = getData(self.code, self.MAJ)
 
-    surroundings = [
-        buildingGPS2plan(extractCoordinates(close)) for close in closestList
-    ]
-    computedSurf = surface(planCoords)
-    print(testSurf, computedSurf)
-    if abs((testSurf - computedSurf)) / testSurf > 0.25:
-        print("")
-    else:
-        if doThePlot and (testSurf - computedSurf) / testSurf > 0.1:
-            print(planCoords)
-            print(info, coordinates)
-            plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords)
-            plt.show()
-    # print(computedSurf, "m2")
+    def set_coordinates(self, coordinates):
+        self.coordinates = coordinates
+        self.update()
 
-    return str(computedSurf)
+    def set_address(self, address):
+        self.address = address
+        coordinates = getLocationFromAddress(self.address)
+        self.set_coordinates(coordinates)
+
+    def set_coordinates_with_geoloc(self):
+        res = getLocation()
+        coordinates = [float(res[1]), float(res[0])]
+        set_coordinates(self, coordinates)
+
+    def set_closest(self):
+        if self.coordinates is None:
+            return None
+        else:
+            self.closest = self.closestFunction(self.coordinates, self.data)
+
+    def set_surface(self):
+        coords = extractCoordinates(self.closest)
+        planCoords = buildingGPS2plan(coords)
+        self.computedSurf = surface(planCoords)
+
+    def compare(self, givenSurface):
+        if self.computedSurf is None:
+            self.set_surface()
+        return abs(givenSurface - self.computedSurf)/givenSurface
+
+    def get_surroundings(self, radius):
+        closestList = getClosestBuildings(self.coordinates, self.data, radius)
+        surroundings = [buildingGPS2plan(extractCoordinates(close))
+                        for close in closestList]
+        return surroundings
+
+    def get_ratio(self, w, h):
+        buildingcoords = extractCoordinates(self.closest)
+        planCoords = buildingGPS2plan(buildingcoords)
+        DX, DY = taille(planCoords)
+        r = min(h/(2*DY), w/(2*DX), 6)
+        return r
+
+    def get_image(self, w, h):
+        r = self.get_ratio(w, h)
+        buildingcoords = extractCoordinates(self.closest)
+        n = len(buildingcoords)
+        center = [sum([coord[0] for coord in buildingcoords])/n,
+                  sum([coord[1] for coord in buildingcoords])/n]
+        self.image_coordinates = center
+        getPlottedPlan(center, buildingcoords, self.code, r, w, h)
+
+    def doThePlot(self, w, h):
+        r = self.get_ratio(w, h)
+        buildingcoords = extractCoordinates(self.closest)
+        n = len(buildingcoords)
+        center = [sum([coord[0] for coord in buildingcoords])/n,
+                  sum([coord[1] for coord in buildingcoords])/n]
+        self.image_coordinates = center
+        plotOnImage(center, buildingcoords, self.code, r, w, h)
 
 
 def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
     for building in surroundings:
         x, y = getXY(building)
-        plt.plot(x, y, color="blue")
+        plt.plot(x, y, color='blue')
 
-    plt.scatter(gps2plan(coordinates)[0], gps2plan(coordinates)[1], color="red")
-    plt.scatter(gps2plan(testCoords)[0], gps2plan(testCoords)[1], color="green")
+    plt.scatter(gps2plan(coordinates)[0],
+                gps2plan(coordinates)[1], color="red")
+    plt.scatter(gps2plan(testCoords)[0], gps2plan(
+        testCoords)[1], color="green")
 
     x, y = getXY(planCoords)
-    plt.plot(x, y, color="red")
+    plt.plot(x, y, color='red')
     x, y = getXY(testPlanCoords)
-    plt.plot(x, y, color="green")
+    plt.plot(x, y, color='green')

@@ -1,7 +1,7 @@
 import numpy as np
-from .conversion import gps2plan, buildingGPS2plan
-from .utils import distancePoint, getXY
-from .calcul import point_dans_polygone
+from surface_estimator.coordonnees.conversion import gps2plan, buildingGPS2plan
+from surface_estimator.utils import distancePoint, getXY
+from .calcul_surface import point_dans_polygone
 from .arbrekd import plus_proche_voisin
 
 
@@ -29,7 +29,7 @@ def closestBuilding(point, cityData):
         coordinates = extractCoordinates(building)
         if point_dans_polygone(coordinates, point):
             return building
-        dist = distance_polygon(gps2plan(point),buildingGPS2plan(coordinates))
+        dist = distance_polygon(gps2plan(point), buildingGPS2plan(coordinates))
         if dist < minDist:
             minDist = dist
             closest = building
@@ -81,10 +81,12 @@ def distance_polygon(point, polygon):
             minDist = dist
     return minDist
 
+
 def centre(polygon):
     n = len(polygon)
     x, y = getXY(polygon)
     return sum(x)/n, sum(y)/n
+
 
 def closestCenter(point, cityData):
     features = cityData["features"]
