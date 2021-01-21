@@ -14,3 +14,22 @@ def taille(batiment):
     DX = max(x) - min(x)
     DY = max(y) - min(y)
     return DX, DY
+
+
+def in_ring(point, center, R1, R2):
+    if R2 < 0:
+        R2 = 0
+    if R1 <= R2:
+        return False
+    return R2**2 <= (point[0] - center[0])**2 + (point[1] - center[1])**2 <= R1**2
+
+
+def neighbours(point, w, h):
+    x, y = point
+    neighboursList = []
+    for i in [-1, 1]:
+        if 0 <= x + i < h:
+            neighboursList.append((x+i, y))
+        if 0 <= y + i < w:
+            neighboursList.append((x, y+i))
+    return neighboursList
