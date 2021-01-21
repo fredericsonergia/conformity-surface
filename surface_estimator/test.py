@@ -1,8 +1,9 @@
 
 import time
-from .algorithmes.closest import closestBuilding, closestCenter
+from .algorithmes.closest import closestBuilding, closestCenter, extractCoordinates, buildingGPS2plan
 import matplotlib.pyplot as plt
 from .main import SurfaceController
+from .utils import getXY
 import numpy as np
 import matplotlib as mpl
 mpl.use('MacOSX')
@@ -37,19 +38,41 @@ def getInfos(line):
 
 infos = [getInfos(line) for line in lines]
 
-res = []
-DT = []
-Max = 0
-start = time.time()
-for info in infos:
-    if info != None:
-        controller = SurfaceController()
-        controller.set_coordinates(info[2])
-        controller.set_surface()
-        error = controller.compare(info[1])
-        res.append(error)
-        DT.append(controller.dt)
-print(time.time() - start)
+controller = SurfaceController()
+controller.set_coordinates((2.253152429687499,48.8895281234375))
+controller.set_closest()
+surroundings = controller.get_surroundings(100)
+
+buildingcoords = buildingGPS2plan(extractCoordinates(controller.closest))
+
+
+for building in surroundings:
+    # coords = extractCoordinates(building)
+    x, y = getXY(building[0])
+    if building[1] == "01":
+        plt.plot(x, y, color="green")
+    else: 
+        plt.plot(x, y, color="blue")
+
+x, y = getXY(buildingcoords)
+
+plt.plot(x, y, color="red")
+plt.show()
+
+
+# res = []
+# DT = []
+# Max = 0
+# start = time.time()
+# for info in infos:
+#     if info != None:
+#         controller = SurfaceController()
+#         controller.set_coordinates(info[2])
+#         controller.set_surface()
+#         error = controller.compare(info[1])
+#         res.append(error)
+#         DT.append(controller.dt)
+# print(time.time() - start)
 
 print("Temps : ")
 

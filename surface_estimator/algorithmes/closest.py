@@ -26,15 +26,18 @@ def closestBuilding(point, cityData):
     minDist = float("inf")
     features = cityData["features"]
     for building in features:
-        coordinates = extractCoordinates(building)
-        if point_dans_polygone(coordinates, point):
-            return building
-        dist = distance_polygon(gps2plan(point), buildingGPS2plan(coordinates))
-        if dist < minDist:
-            minDist = dist
-            closest = building
+        if isBuilding(building):
+            coordinates = extractCoordinates(building)
+            if point_dans_polygone(coordinates, point):
+                return building
+            dist = distance_polygon(gps2plan(point), buildingGPS2plan(coordinates))
+            if dist < minDist:
+                minDist = dist
+                closest = building
     return closest
 
+def isBuilding(building):
+    return building["properties"]["type"] == "01"
 
 def getClosestBuildings(point, cityData, radius, center=False):
     closestList = []

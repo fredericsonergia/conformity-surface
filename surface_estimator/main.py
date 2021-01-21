@@ -73,7 +73,7 @@ class SurfaceController():
 
     def get_surroundings(self, radius):
         closestList = getClosestBuildings(self.coordinates, self.data, radius)
-        surroundings = [buildingGPS2plan(extractCoordinates(close))
+        surroundings = [(buildingGPS2plan(extractCoordinates(close)), close["properties"]["type"])
                         for close in closestList]
         return surroundings
 
