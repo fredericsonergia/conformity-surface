@@ -4,6 +4,7 @@ from surface_estimator.IGN_API import getVille
 from surface_estimator.utils import in_ring, neighbours
 from collections import OrderedDict
 import matplotlib.pyplot as plt
+import pytesseract
 import numpy as np
 import cv2
 from scipy.spatial import distance as dist
@@ -124,39 +125,42 @@ def find_contours(image):
     ratio = image.shape[0] / float(resized.shape[0])
     # blur the resized image slightly, then convert it to both
     # grayscale and the L*a*b* color spaces
-    blurred = cv2.GaussianBlur(resized, (5, 5), 0)
+    blurred = cv2.GaussianBlur(resized, (3, 3), 0)
     gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
     lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
-    thresh = cv2.threshold(gray, 220, 100, cv2.THRESH_BINARY)[1]
+    # thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)[1]
     thresh = cv2.inRange(gray, 200, 210)
-    plt.imshow(thresh)
-    plt.show()
+    # plt.imshow(thresh)
+    # plt.show()
     # find contours in the thresholded image
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
                             cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     black = np.zeros((image.shape))
+
     for c in cnts:
-        # compute the center of the contour
-        M = cv2.moments(c)
-        # cX = int((M["m10"] / M["m00"]) * ratio)
-        # cY = int((M["m01"] / M["m00"]) * ratio)
-        # detect the shape of the contour and label the color
-        cl = ColorLabeler()
-        color = cl.label(lab, c)
-        # multiply the contour (x, y)-coordinates by the resize ratio,
-        # then draw the contours and the name of the shape and labeled
-        # color on the image
-        c = c.astype("float")
-        c *= ratio
-        c = c.astype("int")
-        # text = "{} {}".format(color, shape)
-        cv2.drawContours(black, [c], -1, (255, 255, 255), 2)
-        # cv2.putText(image, text, (cX, cY),
-        #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-        # show the output image
+        if len(c) > 2:
+            # compute the center of the contour
+            M = cv2.moments(c)
+            # cX = int((M["m10"] / M["m00"]) * ratio)
+            # cY = int((M["m01"] / M["m00"]) * ratio)
+            # detect the shape of the contour and label the color
+            cl = ColorLabeler()
+            color = cl.label(lab, c)
+            print(color)
+            # multiply the contour (x, y)-coordinates by the resize ratio,
+            # then draw the contours and the name of the shape and labeled
+            # color on the image
+            # c = c.astype("float")
+            # c *= ratio
+            # c = c.astype("int")
+            # text = "{} {}".format(color, shape)
+            cv2.drawContours(black, [c], -1, (255, 255, 255), 1)
+            # cv2.putText(image, text, (cX, cY),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            # show the output image
     cv2.imshow("Image", black)
     cv2.waitKey(0)
 
 
-find_contours("./static/response.png")
+find_contours("./static/building&lines.png")
