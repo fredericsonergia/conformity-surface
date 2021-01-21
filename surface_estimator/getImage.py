@@ -70,19 +70,23 @@ def getImage(w, h, r, coords, code, layersIndex=range(len(availableLayers))):
     W = w/r
     H = h/r
     bbox = getBbox(coords, W, H)
-    URL = baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers=" + \
-        stringify(layers) + "&format=image/png&crs=EPSG:39" + zone + \
-        "&bbox=" + stringify(bbox) + "&width="+str(w) + \
-        "&height="+str(h)+"&styles="
-    print(URL)
-    res = rq.get(URL)
+    img = download_image(w, h, bbox, codeINSEE, layers, zone)
     file_name = stringify(coords)+".png"
     if not os.path.exists(folder):
         os.mkdir(folder)
     with open(folder + file_name, 'wb') as fp:
-        fp.write(res.content)
+        fp.write(img)
     print("Image retrieved")
     return file_name, zone
+
+
+def download_image(w, h, bbox, codeINSEE, layers, zone):
+    URL = URL = baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers=" + \
+        stringify(layers) + "&format=image/png&crs=EPSG:39" + zone + \
+        "&bbox=" + stringify(bbox) + "&width="+str(w) + \
+        "&height="+str(h)+"&styles="
+    res = rq.get(URL)
+    return res.content
 
 
 def get_image_with_pixels(w, h, r, coords, center, code, zone, layersIndex=range(len(availableLayers))):
@@ -95,16 +99,12 @@ def get_image_with_pixels(w, h, r, coords, center, code, zone, layersIndex=range
     W = w/r
     H = h/r
     bbox = get_bbox_from_lambert(Xc, Yc, W, H)
-    URL = baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers=" + \
-        stringify(layers) + "&format=image/png&crs=EPSG:39" + zone + \
-        "&bbox=" + stringify(bbox) + "&width="+str(w) + \
-        "&height="+str(h)+"&styles="
-    res = rq.get(URL)
+    img = download_image(w, h, bbox, codeINSEE, layers, zone)
     file_name = stringify(coords) + "_centered.png"
     if not os.path.exists(folder):
         os.mkdir(folder)
     with open(folder + file_name, 'wb') as fp:
-        fp.write(res.content)
+        fp.write(img)
     print("Image retrieved")
     return file_name, zone
 
