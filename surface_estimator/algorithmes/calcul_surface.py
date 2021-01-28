@@ -114,3 +114,15 @@ def surface(batiment):
         triangles = trianguler_polygone(batiment)
         surfaces_triangles = [surface(triangle) for triangle in triangles]
         return sum(surfaces_triangles)
+
+
+def perimetre(polygone):
+    n = len(polygone)
+    per = 0
+    for i in range(n - 1):
+        per += distancePoint(polygone[i], polygone[i+1])
+    return per
+
+
+# poly = [[0,0],[1,0],[1,1],[1,2],[1,3],[0,3],[0,2],[0.5,2],[0.5,1],[0,1],[0,0]]
+# print(surface(poly))

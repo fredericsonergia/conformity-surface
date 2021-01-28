@@ -6,8 +6,12 @@ import numpy as np
 
 
 class ImageProcessor():
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self, file_path=None, image=None):
+        if not file_path is None:
+            self.file_path = file_path
+            self.load()
+        if not image is None:
+            self.img = image
     
     def load(self):
         self.img = cv2.imread(self.file_path)
@@ -17,25 +21,31 @@ class ImageProcessor():
         ret,thresh = cv2.threshold(gray,limit,255,cv2.THRESH_BINARY)
 
         thresh = 255 - thresh
-        # thresh = cv2.dilate(thresh, (10, 10), 1)
-        # blurred = cv2.GaussianBlur(thresh, (1,1), 1)
-        # thresh = blurred
+        kernel = np.ones((3,3), np.uint8) 
+
+        thresh = cv2.dilate(thresh, kernel, 2)
+        blurred = cv2.GaussianBlur(thresh, (1,1), 1)
+        thresh = blurred
+        cv2.imshow("Yes", thresh)
+        cv2.waitKey(0)
         return thresh
 
     def get_contours(self, thresh, background_image):
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
         
 
-        edges = cv2.Canny(gray,50,150,apertureSize = 3)
-        minLineLength = 30
+        edges = cv2.Canny(gray,50,255,apertureSize = 5)
+        cv2.imshow("canny", edges)
+        cv2.waitKey(0)
+        minLineLength = 20
         maxLineGap = 20
         lines_edges = cv2.HoughLinesP(edges,1,np.pi/180,50,minLineLength,maxLineGap)
         for line in lines_edges:
             x1,y1,x2,y2 = line[0]
             cv2.line(background_image,(x1,y1),(x2,y2),(0,0,0),1)
         
-        minLineLength = 30
-        maxLineGap = 10
+        minLineLength = 20
+        maxLineGap = 20
         lines_thresh = cv2.HoughLinesP(thresh,1,np.pi/180,50,minLineLength,maxLineGap)
 
         for line in lines_thresh:
@@ -54,16 +64,16 @@ class ImageProcessor():
         os.remove(filename)
         print(text)
 
-processor = ImageProcessor("./static/traits&chiffres.png")
-processor.load()
-thresh = processor.get_binary(250)
-cv2.imshow("thresh",thresh)
-cv2.waitKey(0)
-no_lines = cv2.imread("./static/no_lines.png")
-new_lines = processor.get_contours(thresh, no_lines)
-cv2.imshow("new_lines", new_lines)
-cv2.waitKey(0)
-processor.save_file(new_lines, "./static/building&lines")
+# processor = ImageProcessor("./static/traits&chiffres.png")
+# processor.load()
+# thresh = processor.get_binary(250)
+# cv2.imshow("thresh",thresh)
+# cv2.waitKey(0)
+# no_lines = cv2.imread("./static/no_lines.png")
+# new_lines = processor.get_contours(thresh, no_lines)
+# cv2.imshow("new_lines", new_lines)
+# cv2.waitKey(0)
+# processor.save_file(new_lines, "./static/building&lines")
 # filename = processor.save_file(thresh)
 # print(filename)
 # processor.OCRize(filename)

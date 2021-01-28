@@ -1,9 +1,13 @@
+
 import unittest
+
 import sys
 sys.path.append('../')
 from surface.surface_estimator import SurfaceController
-from IGN_API import IGNTest
-from getImage import GetImageTest
+
+from .getImage import GetImageTest
+from .IGN_API import IGNTest
+
 
 class MainTest(unittest.TestCase):
 
@@ -14,7 +18,5 @@ class MainTest(unittest.TestCase):
         controller.set_surface()
         self.assertAlmostEqual(int(controller.computedSurf), 218)
 
-
-if __name__ == '__main__':
+if __name__ == 'test.main':
     unittest.main()
-

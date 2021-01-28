@@ -3,6 +3,7 @@ from surface_estimator.coordonnees.conversion import gps2plan, buildingGPS2plan
 from surface_estimator.utils import distancePoint, getXY
 from .calcul_surface import point_dans_polygone
 from .arbrekd import plus_proche_voisin
+import datetime
 
 
 def distanceBatiment(point, batiment):
@@ -30,14 +31,24 @@ def closestBuilding(point, cityData):
             coordinates = extractCoordinates(building)
             if point_dans_polygone(coordinates, point):
                 return building
-            dist = distance_polygon(gps2plan(point), buildingGPS2plan(coordinates))
+            dist = distance_polygon(
+                gps2plan(point), buildingGPS2plan(coordinates))
             if dist < minDist:
                 minDist = dist
                 closest = building
     return closest
 
+
 def isBuilding(building):
-    return building["properties"]["type"] == "01"
+    properties = building["properties"]
+    date = properties["created"]
+    year, month, date = date.split("-")
+    before = datetime.date(int(year), int(month), int(date))
+    d = datetime.timedelta(days=1)
+    two_years = 2 * 265.25
+    two_years_before_now = datetime.date.today() - datetime.timedelta(days=two_years)
+    return properties["type"] == "01" and (two_years_before_now - before)/d > 0
+
 
 def getClosestBuildings(point, cityData, radius, center=False):
     closestList = []
@@ -69,7 +80,10 @@ def distance_segment(point, segment):
     BM = M - B
     BA = A - B
     AM = M - A
-    BH = np.dot(BA, BM)/np.linalg.norm(BM)
+    if np.linalg.norm(BM) != 0:
+        BH = np.dot(BA, BM)/np.linalg.norm(BM)
+    else:
+        BH = 0
     if np.dot(BA, BM) < 0 or np.dot(AM, BM) < 0:
         return min(np.linalg.norm(BA), np.linalg.norm(AM))
     else:
@@ -117,3 +131,4 @@ def closestCenter(point, cityData):
 # print("triangle", distance_polygon([1, 1], triangle))
 # print("carre", distance_polygon([0.5, 2], carre))
 # print("polygone", distance_polygon([0, 1], polygone))
+

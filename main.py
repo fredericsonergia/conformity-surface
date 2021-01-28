@@ -22,8 +22,8 @@ def estimateSurface_coords():
     controller.set_coordinates(coordinates)
     controller.set_surface()
     controller.get_image(w, h)
-    response = [controller.computedSurf, controller.image_coordinates]
-    return Response(str(response))
+    response = {"surface": controller.computedSurf, "coords" : controller.image_coordinates, "fileName":controller.file_name[1:]}
+    return Response(str(response).replace("'", "\""))
 
 
 @ app.route("/estimateSurface/address", methods=["POST"])
