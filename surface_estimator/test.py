@@ -1,11 +1,12 @@
 
 import time
-from .algorithmes.closest import closestBuilding, closestCenter
+from .algorithmes.closest import closestBuilding, closestCenter, extractCoordinates, buildingGPS2plan
+from .computer_vision.combine_solutions import SolutionCombiner
 import matplotlib.pyplot as plt
 from .main import SurfaceController
+from .utils import getXY
 import numpy as np
 import matplotlib as mpl
-mpl.use('MacOSX')
 
 with open("./surface_estimator/test_data/201216_Fichier Cadastre surface.csv", 'r') as f:
     lines = f.readlines()
@@ -37,38 +38,116 @@ def getInfos(line):
 
 infos = [getInfos(line) for line in lines]
 
-res = []
-DT = []
-Max = 0
-start = time.time()
-for info in infos:
-    if info != None:
-        controller = SurfaceController()
-        controller.set_coordinates(info[2])
-        controller.set_surface()
-        error = controller.compare(info[1])
-        res.append(error)
-        DT.append(controller.dt)
-print(time.time() - start)
+# controller = SurfaceController()
+# controller.set_coordinates((2.2521361575817074, 48.890426186450696))
+# controller.set_closest()
+# surroundings = controller.get_surroundings(100)
+# controller.get_image(800, 800)
+# buildingcoords = buildingGPS2plan(extractCoordinates(controller.closest))
 
-print("Temps : ")
 
-plt.hist(DT, range=(0, max(DT)), bins=50)
-plt.xlabel('Temps de récupération des données')
-plt.ylabel('Nombre de cas')
-plt.show()
+# for building in surroundings:
+#     # coords = extractCoordinates(building)
+#     x, y = getXY(building[0])
+#     if building[1] == "01":
+#         plt.plot(x, y, color="green")
+#     else:
+#         plt.plot(x, y, color="blue")
 
-plt.hist(res, range=(0, 1), bins=50)
-plt.xlabel('Erreur relative')
-plt.ylabel('Nombre de cas')
-mseSurf = 0
-i = 0
-for errors in res:
-    if errors != None:
-        mseSurf += errors**2
-        i += 1
-print(np.sqrt(mseSurf)/i)
-plt.show()
+# x, y = getXY(buildingcoords)
+
+# plt.plot(x, y, color="red")
+# plt.show()
+
+# errors = []
+# Tau = []
+# DeltaD = []
+# DeltaS = []
+# for info in infos:
+#     if info != None:
+#         sc = SolutionCombiner(info[2])
+#         valid = sc.combine(800, 400, 6, 100)
+#         if valid == -1:
+#             continue
+#         sc.get_surfaces()
+#         sc.get_confidence()
+#         surf = sc.surfaces[sc.building_index][0]
+#         error = abs((surf - info[1])/info[1])
+#         print("score de confiance", sc.conf)
+#         print("pourcentage d'erreur", error)
+#         if error < 1:
+#             Tau.append(sc.tU)
+#             DeltaD.append(sc.DeltaD)
+#             DeltaS.append(sc.DeltaS)
+#             errors.append(error**2)
+#         if error > 1:
+#             sc.draw(info[0])
+
+# print(np.sqrt(sum(errors))/len(errors))
+
+# plt.hist(np.log(errors), range=(0, max(errors)), bins=50)
+# plt.xlabel('Erreur relative')
+# plt.ylabel('Nombre de cas')
+# plt.show()
+
+# # plt.hist(confidence, range=(0, max(confidence)), bins=50)
+# # plt.xlabel('Score de confiance')
+# # plt.ylabel('Nombre de cas')
+# # plt.show()
+
+# # plt.plot(confidence)
+# # plt.plot(errors)
+# # plt.xlabel('Cas')
+# # plt.ylabel('Erreur/confiance')
+# # plt.show()
+
+# plt.scatter(Tau, np.log(errors))
+# plt.xlabel("$\\tau_u$")
+# plt.ylabel("errors")
+# plt.show()
+
+# plt.scatter(DeltaD, np.log(errors))
+# plt.xlabel("$\\Delta U$")
+# plt.ylabel("errors")
+# plt.show()
+
+# plt.scatter(DeltaS, np.log(errors))
+# plt.xlabel("$\\Delta S$")
+# plt.ylabel("errors")
+# plt.show()
+
+# res = []
+# DT = []
+# Max = 0
+# start = time.time()
+# for info in infos:
+#     if info != None:
+#         controller = SurfaceController()
+#         controller.set_coordinates(info[2])
+#         controller.set_surface()
+#         error = controller.compare(info[1])
+#         res.append(error)
+#         DT.append(controller.dt)
+# print(time.time() - start)
+
+# print("Temps : ")
+
+# plt.hist(DT, range=(0, max(DT)), bins=50)
+# plt.xlabel('Temps de récupération des données')
+# plt.ylabel('Nombre de cas')
+# plt.show()
+
+# plt.hist(res, range=(0, 1), bins=50)
+# plt.xlabel('Erreur relative')
+# plt.ylabel('Nombre de cas')
+# mseSurf = 0
+# i = 0
+# for errors in res:
+#     if errors != None:
+#         mseSurf += errors**2
+#         i += 1
+# print(np.sqrt(mseSurf)/i)
+# plt.show()
 
 
 print("\n DONE \n")

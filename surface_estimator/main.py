@@ -73,7 +73,7 @@ class SurfaceController():
 
     def get_surroundings(self, radius):
         closestList = getClosestBuildings(self.coordinates, self.data, radius)
-        surroundings = [buildingGPS2plan(extractCoordinates(close))
+        surroundings = [(buildingGPS2plan(extractCoordinates(close)), close["properties"]["type"])
                         for close in closestList]
         return surroundings
 
@@ -91,7 +91,7 @@ class SurfaceController():
         center = [sum([coord[0] for coord in buildingcoords])/n,
                   sum([coord[1] for coord in buildingcoords])/n]
         self.image_coordinates = center
-        getPlottedPlan(center, buildingcoords, self.code, r, w, h)
+        self.file_name, zone, bbox = getPlottedPlan(center, buildingcoords, self.code, r, w, h)
 
     def doThePlot(self, w, h):
         r = self.get_ratio(w, h)
@@ -102,6 +102,12 @@ class SurfaceController():
         self.image_coordinates = center
         plotOnImage(center, buildingcoords, self.code, r, w, h)
 
+class ImageSurfaceController():
+    def __init__(self):
+        pass
+
+
+    
 
 def plot(surroundings, planCoords, coordinates, testPlanCoords, testCoords):
     for building in surroundings:
