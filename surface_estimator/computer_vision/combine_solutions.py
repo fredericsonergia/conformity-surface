@@ -1,7 +1,7 @@
 
 from surface_estimator.IGN_API import getData, getVille
 from surface_estimator.getImage import get_centered, plot_surroundings
-from surface_estimator.algorithmes.closest import getClosestBuildings, extractCoordinates, distance_polygon
+from surface_estimator.algorithmes.closest import getClosestBuildings, extractCoordinates, distance_polygon, isBuilding
 from surface_estimator.algorithmes.calcul_surface import perimetre
 from surface_estimator.computer_vision.contours import find_contours, BuildingFinder, ColorLabeler
 from surface_estimator.utils import get_inside_point
@@ -37,10 +37,11 @@ class SolutionCombiner():
             data, dt = getData(self.code)
             self.closestList = getClosestBuildings(
                 self.coordinates, data, R)
-            surroundings = [((extractCoordinates(close)), close["properties"]["type"])
-                            for close in self.closestList]
-            self.hard_buildings = [building[0]
-                                   for building in surroundings if building[1] == '01']
+            self.hard_buildings = [extractCoordinates(close) for close in self.closestList if isBuilding(close)]
+            # surroundings = [((extractCoordinates(close)), close["properties"]["type"])
+            #                 for close in self.closestList]
+            # self.hard_buildings = [building[0]
+            #                        for building in surroundings ]
 
     def combine(self, w, h, r, R):
         """
@@ -158,22 +159,14 @@ class SolutionCombiner():
         surfaces = self.surfaces
         NJaune = sum([surface[0] for surface in self.surfaces])*r**2
         Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
-        tU = NJaune/(w*h - NJaune)
+        tU = NJaune/(w*h)
         surf = self.surfaces[self.building_index][0]
-        DeltaS2 = abs(surf**2 - Ms**2)/Ms**2
-        Md = sum([surface[1] for surface in surfaces])/len(surfaces)
-        # print("N(batiment) =", len(surfaces))
-        # print("Résolution :", w*h)
-        # print("NJaune (px) =", NJaune)
-        # print("Ms =", Ms)
-        # print("Tau =", tU)
-        # print("Md =", Md/(h/r))
-        # print("DeltaS =", np.sqrt(DeltaS2))
-        # print("confiance", np.sqrt((1-tU)*np.sqrt(DeltaS2) + (Md/(h/r))**2)/2)
+        DeltaS2 = abs(surf - Ms)/Ms
+        Md = sum([surface[1] for surface in surfaces])/len(surfaces) - self.surfaces[self.building_index][1]
         self.tU = tU
         self.DeltaD = Md/(h/r)
-        self.DeltaS = np.sqrt(DeltaS2)
-        self.conf = np.sqrt((1-tU)*np.sqrt(DeltaS2) + (Md/(h/r))**2)/2
+        self.DeltaS = DeltaS2
+        self.conf = np.sqrt((1-self.tU)*self.DeltaS + self.DeltaD**2)/2
 
     def draw(self, title):
         cv2.imshow('thresh', self.thresh)
