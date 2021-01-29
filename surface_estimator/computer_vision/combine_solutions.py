@@ -1,7 +1,7 @@
 
 from surface_estimator.IGN_API import getData, getVille
 from surface_estimator.getImage import get_centered, plot_surroundings
-from surface_estimator.algorithmes.closest import getClosestBuildings, extractCoordinates, distance_polygon
+from surface_estimator.algorithmes.closest import getClosestBuildings, extractCoordinates, distance_polygon, isBuilding
 from surface_estimator.algorithmes.calcul_surface import perimetre
 from surface_estimator.computer_vision.contours import find_contours, BuildingFinder, ColorLabeler
 from surface_estimator.utils import get_inside_point
@@ -37,10 +37,8 @@ class SolutionCombiner():
             data, dt = getData(self.code)
             self.closestList = getClosestBuildings(
                 self.coordinates, data, R)
-            surroundings = [((extractCoordinates(close)), close["properties"]["type"])
-                            for close in self.closestList]
-            self.hard_buildings = [building[0]
-                                   for building in surroundings if building[1] == '01']
+            self.hard_buildings = [extractCoordinates(
+                close) for close in self.closestList if isBuilding(close)]
 
     def combine(self, w, h, r, R):
         """
@@ -101,7 +99,6 @@ class SolutionCombiner():
         contours = cv2.findContours(
             thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
 
-        # print(contours)
         for label in range(1, ret):
             cnt = contours[ret-label-1]
             if len(cnt) > 2:
@@ -121,33 +118,6 @@ class SolutionCombiner():
                         ((len(mask[labels == label])+per*2)/r**2, d/r))
                     k += 1
         self.surfaces = surfaces
-        # print(surfaces)
-        # cv2.drawContours(mask, [cnt], -1, 200, 2)
-        # cv2.imshow('component', mask)
-        # cv2.waitKey(0)
-
-        # for cnt in self.contours:
-        #     i += 1
-        #     if len(cnt) > 2:
-        #         cl = ColorLabeler()
-        #     color = cl.label(lab, cnt)
-        #     if color == "yellow":
-        #         building = [point[0] for point in cnt]
-        #         x, y = get_inside_point(building, 0.9, w, h)
-        #         d = distance_polygon(center, building)
-        #         per = perimetre(building)
-        #         print(int(i*100/len(self.contours)), "%")
-        #         if (x, y) == (-1, -1):
-        #             continue
-        #         connex = finder.get_connex((y, x), thresh)
-        #         if d < dist:
-        #             dist = d
-        #             index = k
-        #         surfaces.append(((len(connex)+per*1)/r**2, d/r))
-        #         k += 1
-        # self.surfaces = surfaces
-        # self.building_index = index
-        # print(surfaces)
 
     def get_confidence(self):
         """
@@ -158,22 +128,15 @@ class SolutionCombiner():
         surfaces = self.surfaces
         NJaune = sum([surface[0] for surface in self.surfaces])*r**2
         Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
-        tU = NJaune/(w*h - NJaune)
+        tU = NJaune/(w*h)
         surf = self.surfaces[self.building_index][0]
         DeltaS2 = abs(surf**2 - Ms**2)/Ms**2
-        Md = sum([surface[1] for surface in surfaces])/len(surfaces)
-        # print("N(batiment) =", len(surfaces))
-        # print("Résolution :", w*h)
-        # print("NJaune (px) =", NJaune)
-        # print("Ms =", Ms)
-        # print("Tau =", tU)
-        # print("Md =", Md/(h/r))
-        # print("DeltaS =", np.sqrt(DeltaS2))
-        # print("confiance", np.sqrt((1-tU)*np.sqrt(DeltaS2) + (Md/(h/r))**2)/2)
+        Md = sum([surface[1] for surface in surfaces]) / \
+            len(surfaces) - self.surfaces[self.building_index][1]
         self.tU = tU
         self.DeltaD = Md/(h/r)
-        self.DeltaS = np.sqrt(DeltaS2)
-        self.conf = np.sqrt((1-tU)*np.sqrt(DeltaS2) + (Md/(h/r))**2)/2
+        self.DeltaS = DeltaS2
+        self.conf = (-self.tU - self.DeltaS**2 * self.DeltaD + 15)/15
 
     def draw(self, title):
         cv2.imshow('thresh', self.thresh)
@@ -183,7 +146,3 @@ class SolutionCombiner():
         cv2.imshow(title, self.image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-# sc = SolutionCombiner((2.1119255999999997, 48.860658423076934))
-# sc.combine(800, 400, 6, 100)
-# sc.get_surfaces()
-# sc.get_confidence()
