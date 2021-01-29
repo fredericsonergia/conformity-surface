@@ -82,13 +82,13 @@ def do_the_test(infos):
             print("score de confiance", sc.conf)
             print("pourcentage d'erreur", error)
             i += 1
-            if error < .1:
+            if error > .1:
                 Tau.append(sc.tU)
                 DeltaD.append(sc.DeltaD)
                 DeltaS.append(sc.DeltaS)
                 errors.append(error**2)
                 confidence.append(sc.conf)
-                line = str(i) + ";" + str(error) + ";" + str(sc.DeltaS) + ";" + str(sc.DeltaD) + ";" + str(sc.tU) + "\n"
+                line = str(i) + ";" + str(error) + ";" + str(sc.DeltaS) + ";" + str(sc.DeltaD) + ";" + str(sc.tU) + ";" + str(sc.conf) +  "\n"
                 file.write(line)
             # if error > 1:
             #     sc.draw(info[0])

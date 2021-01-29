@@ -161,12 +161,12 @@ class SolutionCombiner():
         Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
         tU = NJaune/(w*h)
         surf = self.surfaces[self.building_index][0]
-        DeltaS2 = abs(surf - Ms)/Ms
+        DeltaS2 = abs(surf**2 - Ms**2)/Ms**2
         Md = sum([surface[1] for surface in surfaces])/len(surfaces) - self.surfaces[self.building_index][1]
         self.tU = tU
         self.DeltaD = Md/(h/r)
         self.DeltaS = DeltaS2
-        self.conf = np.sqrt((1-self.tU)*self.DeltaS + self.DeltaD**2)/2
+        self.conf = (-self.tU - self.DeltaS**2 * self.DeltaD + 15)/15
 
     def draw(self, title):
         cv2.imshow('thresh', self.thresh)
