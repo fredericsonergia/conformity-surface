@@ -7,7 +7,6 @@ from collections import OrderedDict
 from surface_estimator.algorithmes.calcul_surface import surface, perimetre
 from .image_processor import ImageProcessor
 import matplotlib.pyplot as plt
-import pytesseract
 import numpy as np
 import cv2
 from scipy.spatial import distance as dist
