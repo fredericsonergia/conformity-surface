@@ -1,5 +1,4 @@
 import cv2
-import pytesseract
 import os
 from PIL import Image
 import numpy as np
@@ -59,23 +58,4 @@ class ImageProcessor():
         cv2.imwrite(filename, img)
         return filename
 
-    def OCRize(self, filename):
-        text = pytesseract.image_to_string(Image.open(filename))
-        os.remove(filename)
-        print(text)
-
-# processor = ImageProcessor("./static/traits&chiffres.png")
-# processor.load()
-# thresh = processor.get_binary(250)
-# cv2.imshow("thresh",thresh)
-# cv2.waitKey(0)
-# no_lines = cv2.imread("./static/no_lines.png")
-# new_lines = processor.get_contours(thresh, no_lines)
-# cv2.imshow("new_lines", new_lines)
-# cv2.waitKey(0)
-# processor.save_file(new_lines, "./static/building&lines")
-# filename = processor.save_file(thresh)
-# print(filename)
-# processor.OCRize(filename)
-# cv2.imshow("",thresh)
-# cv2.waitKey(0)
+    
