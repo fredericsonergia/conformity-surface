@@ -46,7 +46,7 @@ def getPlottedPlan(coords, coordinates, code, r, width, height):
     H = height/r
     bbox = getBbox(coords, W, H)
     file_name, zone, bbox = getImage(width, height, r, coords, code)
-    img = Image.open(r''+ folder + file_name)
+    img = Image.open(r'' + folder + file_name)
     batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(
         coord[1]))) - np.array([coords[0] - 3, 0]) for coord in coordinates]
     batX, batY = [r*(coord[0] - bbox[0]) for coord in batiment], [r *
@@ -64,11 +64,7 @@ def plot_surroundings(image, coords, surroundings, bbox, w, h, r):
     img = image
     cnts = []
     for coordinates in surroundings:
-        batiment = [(np.array(lambert(degre2rad(coord[0]), degre2rad(
-            coord[1]))) - np.array([coords[0] - 3, 0])) for coord in coordinates]
-        cnt = np.array([[truncate_coords([r*(coord[0] - bbox[0]), r*(coord[1] - bbox[1])], w, h)]
-                        for coord in batiment])
-        cnts.append(cnt)
+        cnts.append(get_cnt_from_building(coordinates, coords, bbox, r, w, h))
     cv2.drawContours(img, cnts, -1, (0, 0, 0), 2)
     return img, cnts
 
@@ -76,6 +72,14 @@ def plot_surroundings(image, coords, surroundings, bbox, w, h, r):
 def truncate_coords(coord, w, h):
     x, y = coord
     return [int(x), h-1-int(y)]
+
+
+def get_cnt_from_building(building, coords, bbox, r, w, h):
+    batiment = [(np.array(lambert(degre2rad(coord[0]), degre2rad(
+        coord[1]))) - np.array([coords[0] - 3, 0])) for coord in building]
+    cnt = np.array([[truncate_coords([r*(coord[0] - bbox[0]), r*(coord[1] - bbox[1])], w, h)]
+                    for coord in batiment])
+    return cnt
 
 
 baseURL = "https://inspire.cadastre.gouv.fr/scpc/"

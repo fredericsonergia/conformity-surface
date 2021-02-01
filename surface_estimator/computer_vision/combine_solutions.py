@@ -25,6 +25,11 @@ class SolutionCombiner():
         if centered is None:
             return -1
         self.file_name, self.zone, self.bbox = centered
+        full = get_centered(
+            w, h, r, self.coordinates, self.code)
+        if full is None:
+            return -1
+        self.file_name_full = full[0]
         img = cv2.imread(self.file_name)
 
     def get_buildings(self, R):
@@ -98,9 +103,9 @@ class SolutionCombiner():
 
         contours = cv2.findContours(
             thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
-
+        self.contours = []
         for label in range(1, ret):
-            cnt = contours[ret-label-1]
+            cnt = contours[min(self.ret - 1, len(contours))-label]
             if len(cnt) > 2:
                 cl = ColorLabeler()
                 color = cl.label(lab, cnt)
@@ -114,6 +119,7 @@ class SolutionCombiner():
                         dist = d
                         self.building_index = k
                         self.cnt = cnt
+                    self.contours.append(cnt)
                     surfaces.append(
                         ((len(mask[labels == label])+per*2)/r**2, d/r))
                     k += 1

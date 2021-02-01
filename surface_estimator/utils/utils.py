@@ -84,4 +84,4 @@ def get_inside_point(batiment, coef, w, h):
     for i in range(1, len(batiment)):
         sumX += batiment[i][0]*(1-coef)/(n-1)
         sumY += batiment[i][1]*(1-coef)/(n-1)
-    return min(int(sumX),w-1), min(int(sumY), h-1)
+    return min(int(sumX), w-1), min(int(sumY), h-1)
