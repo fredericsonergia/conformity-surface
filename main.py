@@ -1,6 +1,7 @@
 from flask import Flask, request, Response
 from flask_cors import cross_origin, CORS
 from surface_estimator import SurfaceController
+from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "the quick brown fox jumps over the lazy   dog"
@@ -22,7 +23,8 @@ def estimateSurface_coords():
     controller.set_coordinates(coordinates)
     controller.set_surface()
     controller.get_image(w, h)
-    response = {"surface": controller.computedSurf, "coords" : controller.image_coordinates, "fileName":controller.file_name[1:]}
+    response = {"surface": controller.computedSurf,
+                "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
     return Response(str(response).replace("'", "\""))
 
 
@@ -38,8 +40,41 @@ def estimateSurface_address():
     controller.set_address(address)
     controller.set_surface()
     controller.get_image(w, h)
-    response = [controller.computedSurf, controller.image_coordinates]
-    return Response(str(response))
+    response = {"surface": controller.computedSurf,
+                "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
+    return Response(str(response).replace("'", "\""))
+
+
+@ app.route("/estimateSurface/coordinates/fromCV", methods=["POST"])
+@ cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
+def estimateSurface_coords_from_cv():
+    if not request.is_json:
+        return "Request was not a JSON", 400
+    req = request.get_json(force=True)
+    coordinates = [float(coord) for coord in req["coordinates"].split(',')]
+    w, h = 800, 400
+    r, R = 6, 100
+    sc = SolutionCombiner(coordinates)
+    valid = sc.combine(w, h, r, R)
+    if valid == -1:
+        return Response(FileNotFoundError)
+    sc.get_surfaces()
+    sc.get_confidence()
+    surf = sc.surfaces[sc.building_index][0]
+    surfaces = [surf[0] for surf in sc.surfaces]
+    contours = [[[list(point) for point in points]
+                 for points in cnt] for cnt in sc.contours]
+    response = {"surface": surf,
+                "coords": coordinates,
+                "fileName": sc.file_name_full[1:],
+                "contours": contours,
+                "surfaces": surfaces,
+                "metrics": [{"label": "Tau", "value": sc.tU},
+                            {"label": "DeltaD", "value": sc.DeltaD},
+                            {"label": "DeltaS", "value": sc.DeltaS},
+                            {"label": "conf", "value": sc.conf}]
+                }
+    return Response(str(response).replace("'", "\""))
 
 
 if __name__ == "__main__":
