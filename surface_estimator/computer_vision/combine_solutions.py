@@ -15,6 +15,20 @@ class SolutionCombiner():
         self.code = None
         pass
 
+    def __str__(self):
+        string = {"surface": surf,
+                "coords": coordinates,
+                "fileName": self.file_name_full[1:],
+                "contours": contours,
+                "surfaces": surfaces,
+                "metrics": [{"label": "Tau", "value": self.tU},
+                            {"label": "DeltaD", "value": self.DeltaD},
+                            {"label": "DeltaS", "value": self.DeltaS},
+                            {"label": "conf", "value": self.conf}]
+                }
+        return str(string)
+        
+
     def get_back(self, w, h, r):
         """ 
         get the background image from cadastre 
