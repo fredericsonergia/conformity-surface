@@ -4,6 +4,7 @@ click==7.1.2
 cycler==0.10.0
 decorator==4.4.2
 Flask==1.1.2
+flask-cors
 future==0.18.2
 geocoder==1.38.1
 idna==2.10

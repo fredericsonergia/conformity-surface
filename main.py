@@ -2,6 +2,7 @@ from flask import Flask, request, Response
 from flask_cors import cross_origin, CORS
 from surface_estimator import SurfaceController
 from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
+import pickle
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "the quick brown fox jumps over the lazy   dog"
@@ -44,6 +45,8 @@ def estimateSurface_address():
                 "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
     return Response(str(response).replace("'", "\""))
 
+filename = "./surface_estimator/test_data/finalized_model.sav"
+loaded_model = pickle.load(open(filename, 'rb'))
 
 @ app.route("/estimateSurface/coordinates/fromCV", methods=["POST"])
 @ cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
@@ -59,7 +62,7 @@ def estimateSurface_coords_from_cv():
     if valid == -1:
         return Response(FileNotFoundError)
     sc.get_surfaces()
-    sc.get_confidence()
+    sc.get_confidence(loaded_model)
     return Response(str(sc))
 
 

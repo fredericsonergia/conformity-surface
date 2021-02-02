@@ -49,8 +49,6 @@ def train(infos, filename):
     X, y = np.transpose([Tau, DeltaD, DeltaS]), errors
     clf = tree.DecisionTreeRegressor(max_depth=3)
     clf = clf.fit(X, y)
-    tree.plot_tree(clf) 
-    print(clf.predict([X[0]]), y[0])
     dot_data = tree.export_graphviz(clf, out_file=None) 
     pickle.dump(clf, open(filename, 'wb'))
     

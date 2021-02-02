@@ -128,7 +128,7 @@ class SolutionCombiner():
 
         contours = cv2.findContours(
             thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
-        
+        self.contours = []
         for label in range(1, ret):
             cnt = contours[min(self.ret - 1, len(contours))-label]
             if len(cnt) > 2:
