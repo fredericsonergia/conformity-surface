@@ -60,21 +60,7 @@ def estimateSurface_coords_from_cv():
         return Response(FileNotFoundError)
     sc.get_surfaces()
     sc.get_confidence()
-    surf = sc.surfaces[sc.building_index][0]
-    surfaces = [surf[0] for surf in sc.surfaces]
-    contours = [[[list(point) for point in points]
-                 for points in cnt] for cnt in sc.contours]
-    response = {"surface": surf,
-                "coords": coordinates,
-                "fileName": sc.file_name_full[1:],
-                "contours": contours,
-                "surfaces": surfaces,
-                "metrics": [{"label": "Tau", "value": sc.tU},
-                            {"label": "DeltaD", "value": sc.DeltaD},
-                            {"label": "DeltaS", "value": sc.DeltaS},
-                            {"label": "conf", "value": sc.conf}]
-                }
-    return Response(str(response).replace("'", "\""))
+    return Response(str(sc))
 
 
 if __name__ == "__main__":

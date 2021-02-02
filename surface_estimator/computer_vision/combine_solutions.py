@@ -13,11 +13,21 @@ class SolutionCombiner():
     def __init__(self, coordinates):
         self.coordinates = coordinates
         self.code = None
+        self.contours = []
+        self.building_index = 0
+        self.surf = None
+        self.tU = None
+        self.DeltaD = None
+        self.DeltaS = None
+        self.conf = None
         pass
 
     def __str__(self):
-        string = {"surface": surf,
-                "coords": coordinates,
+        surfaces = [surf[0] for surf in self.surfaces]
+        contours = [[[list(point) for point in points]
+                    for points in cnt] for cnt in self.contours]
+        string = {"surface": self.surf,
+                "coords": self.coordinates,
                 "fileName": self.file_name_full[1:],
                 "contours": contours,
                 "surfaces": surfaces,
@@ -26,7 +36,7 @@ class SolutionCombiner():
                             {"label": "DeltaS", "value": self.DeltaS},
                             {"label": "conf", "value": self.conf}]
                 }
-        return str(string)
+        return str(string).replace("'", "\"")
         
 
     def get_back(self, w, h, r):
@@ -117,7 +127,7 @@ class SolutionCombiner():
 
         contours = cv2.findContours(
             thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
-        self.contours = []
+        
         for label in range(1, ret):
             cnt = contours[min(self.ret - 1, len(contours))-label]
             if len(cnt) > 2:
@@ -146,17 +156,19 @@ class SolutionCombiner():
         h, w = self.image.shape[:2]
         r = self.r
         surfaces = self.surfaces
-        NJaune = sum([surface[0] for surface in self.surfaces])*r**2
-        Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
-        tU = NJaune/(w*h-NJaune)
-        surf = self.surfaces[self.building_index][0]
-        DeltaS2 = abs(surf**2 - Ms**2)/Ms**2
-        Md = sum([surface[1] for surface in surfaces]) / \
-            len(surfaces) - self.surfaces[self.building_index][1]
-        self.tU = tU
-        self.DeltaD = Md/(h/r)
-        self.DeltaS = DeltaS2
-        self.conf = (-self.tU - self.DeltaS**2 * self.DeltaD + 30)/30
+        if len(surfaces) > 0 :
+            NJaune = sum([surface[0] for surface in self.surfaces])*r**2
+            Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
+            tU = NJaune/(w*h-NJaune)
+            self.surf = surfaces[self.building_index][0]
+            DeltaS2 = abs(self.surf**2 - Ms**2)/Ms**2
+            Md = sum([surface[1] for surface in surfaces]) / \
+                len(surfaces) - self.surfaces[self.building_index][1]
+            self.tU = tU
+            self.DeltaD = Md/(h/r)
+            self.DeltaS = DeltaS2
+            self.conf = (-self.tU - self.DeltaS**2 * self.DeltaD + 30)/30
+            
 
     def draw(self, title):
         cv2.imshow('thresh', self.thresh)
