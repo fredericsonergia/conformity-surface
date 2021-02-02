@@ -7,6 +7,9 @@ from .main import SurfaceController
 from .utils import getXY
 import scipy.stats as sps
 import numpy as np
+from sklearn import tree
+import pickle
+import graphviz 
 import matplotlib as mpl
 mpl.use("MacOSX")
 
@@ -41,12 +44,26 @@ def getInfos(line):
 infos = [getInfos(line) for line in lines]
 
 
-def do_the_test(infos):
+def train(infos, filename):
+    Tau, DeltaD, DeltaS, errors = do_the_test(infos)
+    X, y = np.transpose([Tau, DeltaD, DeltaS]), errors
+    clf = tree.DecisionTreeRegressor(max_depth=3)
+    clf = clf.fit(X, y)
+    tree.plot_tree(clf) 
+    print(clf.predict([X[0]]), y[0])
+    dot_data = tree.export_graphviz(clf, out_file=None) 
+    pickle.dump(clf, open(filename, 'wb'))
+    
+def test(infos, model):
+    do_the_test(infos, model)
+
+def do_the_test(infos, model=None):
     errors = []
     Tau = []
     DeltaD = []
     DeltaS = []
     confidence = []
+    thresh = 0.1
     i = 0
     file = open("./surface_estimator/test_data/result.csv", "w")
     for info in infos:
@@ -56,7 +73,7 @@ def do_the_test(infos):
             if valid == -1:
                 continue
             sc.get_surfaces()
-            sc.get_confidence()
+            sc.get_confidence(model)
             surf = sc.surfaces[sc.building_index][0]
             error = abs((surf - info[1])/info[1])
             print("score de confiance", sc.conf)
@@ -72,23 +89,15 @@ def do_the_test(infos):
                     str(sc.DeltaD) + ";" + str(sc.tU) + \
                     ";" + str(sc.conf) + "\n"
                 file.write(line)
-            # if error > 1:
-            #     sc.draw(info[0])
-
     file.close()
-    print(np.sqrt(sum(errors))/len(errors))
-    print("Conf :", sps.stats.pearsonr(confidence, errors))
-    print("DeltaD :", sps.stats.pearsonr(DeltaD, errors))
-    print("DeltaS :", sps.stats.pearsonr(DeltaS, errors))
-    print("Tau :", sps.stats.pearsonr(Tau, errors))
-
-    plt.hist(np.log(errors)/np.log(10), range=(min(np.log(errors) /
-                                                   np.log(10)), max(np.log(errors)/np.log(10))), bins=50)
-    plt.xlabel('Erreur relative')
-    plt.ylabel('Nombre de cas')
-    plt.show()
+    return Tau, DeltaD, DeltaS, errors
 
 start = time.time()
-do_the_test(infos)
+
+filename = "./surface_estimator/test_data/finalized_model.sav"
+# train(infos, filename)
+loaded_model = pickle.load(open(filename, 'rb'))
+test(infos, loaded_model)
+
 print(time.time()-start)
 print("\n DONE \n")

@@ -80,6 +80,7 @@ class SolutionCombiner():
         W, H = w/r, h/r
         self.get_buildings(R)
         image = cv2.imread(self.file_name)
+        print(self.file_name)
         plotted, self.contours = plot_surroundings(
             image, self.coordinates, self.hard_buildings, self.bbox, w, h, r)
         file_name = self.file_name[:-4] + "_combined.png"
@@ -149,7 +150,7 @@ class SolutionCombiner():
                     k += 1
         self.surfaces = surfaces
 
-    def get_confidence(self):
+    def get_confidence(self, model):
         """
         Compute the confidence index on the computations
         """
@@ -167,7 +168,8 @@ class SolutionCombiner():
             self.tU = tU
             self.DeltaD = Md/(h/r)
             self.DeltaS = DeltaS2
-            self.conf = (-self.tU - self.DeltaS**2 * self.DeltaD + 30)/30
+            if not model is None: 
+                self.conf = 1-model.predict([[self.tU, self.DeltaD, self.DeltaS]])[0]
             
 
     def draw(self, title):
