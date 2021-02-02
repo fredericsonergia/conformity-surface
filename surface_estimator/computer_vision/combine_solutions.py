@@ -97,7 +97,7 @@ class SolutionCombiner():
         i = 0
         k = 0
         dist = float("inf")
-
+        cv2.imwrite("./static/thresh.png", self.thresh)
         self.ret, labels = cv2.connectedComponents(thresh)
         ret = self.ret
 
@@ -134,7 +134,7 @@ class SolutionCombiner():
         surfaces = self.surfaces
         NJaune = sum([surface[0] for surface in self.surfaces])*r**2
         Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
-        tU = NJaune/(w*h)
+        tU = NJaune/(w*h-NJaune)
         surf = self.surfaces[self.building_index][0]
         DeltaS2 = abs(surf**2 - Ms**2)/Ms**2
         Md = sum([surface[1] for surface in surfaces]) / \
@@ -142,7 +142,7 @@ class SolutionCombiner():
         self.tU = tU
         self.DeltaD = Md/(h/r)
         self.DeltaS = DeltaS2
-        self.conf = (-self.tU - self.DeltaS**2 * self.DeltaD + 15)/15
+        self.conf = (-self.tU - self.DeltaS**2 * self.DeltaD + 30)/30
 
     def draw(self, title):
         cv2.imshow('thresh', self.thresh)
@@ -150,5 +150,8 @@ class SolutionCombiner():
         cnt = self.cnt
         cv2.drawContours(self.image, [cnt], -1, (0, 0, 255), 2)
         cv2.imshow(title, self.image)
+        cv2.imwrite("./static/cas_limites/"+title+".png", self.image)
+        cv2.imwrite("./static/cas_limites/"+title+"_original.png",
+                    cv2.imread(self.file_name_full))
         cv2.waitKey(0)
         cv2.destroyAllWindows()
