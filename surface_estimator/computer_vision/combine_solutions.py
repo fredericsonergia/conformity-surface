@@ -162,14 +162,14 @@ class SolutionCombiner():
             Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
             tU = NJaune/(w*h-NJaune)
             self.surf = surfaces[self.building_index][0]
-            DeltaS2 = abs(self.surf**2 - Ms**2)/Ms**2
+            DeltaS2 = abs(self.surf - Ms)/Ms
             Md = sum([surface[1] for surface in surfaces]) / \
                 len(surfaces) - self.surfaces[self.building_index][1]
             self.tU = tU
             self.DeltaD = Md/(h/r)
             self.DeltaS = DeltaS2
             if not model is None: 
-                self.conf = 1-model.predict([[self.tU, self.DeltaD, self.DeltaS]])[0]
+                self.conf = model.predict([[self.tU, self.DeltaD, self.DeltaS]])[0]**2
             
 
     def draw(self, title):
