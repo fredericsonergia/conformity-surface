@@ -4,6 +4,7 @@ click==7.1.2
 cycler==0.10.0
 decorator==4.4.2
 Flask==1.1.2
+flask-cors
 future==0.18.2
 geocoder==1.38.1
 idna==2.10
@@ -23,3 +24,7 @@ six==1.15.0
 urllib3==1.26.2
 Werkzeug==1.0.1
 imutils==0.5.4
+opencv-python
+scipy==1.6.0
+scikit-learn==0.24.1
+graphviz==0.16

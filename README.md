@@ -3,7 +3,7 @@
 ## Install requirements
 
 ```bash
-pip3 install -r requirements
+pip3 install -r requirements.txt
 ```
 
 ## Launch server
@@ -19,5 +19,5 @@ Work in progress
 ## Launch batch computation
 
 ```bash
-python3 batchs.py -i path/to/input/file.ext -o path/to/output/file.ext
+python3 batchs.py -c path/to/config/file.config
 ```
