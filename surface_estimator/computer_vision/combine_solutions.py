@@ -25,19 +25,18 @@ class SolutionCombiner():
     def __str__(self):
         surfaces = [surf[0] for surf in self.surfaces]
         contours = [[[list(point) for point in points]
-                    for points in cnt] for cnt in self.contours]
+                     for points in cnt] for cnt in self.contours]
         string = {"surface": self.surf,
-                "coords": self.coordinates,
-                "fileName": self.file_name_full[1:],
-                "contours": contours,
-                "surfaces": surfaces,
-                "metrics": [{"label": "Tau", "value": self.tU},
-                            {"label": "DeltaD", "value": self.DeltaD},
-                            {"label": "DeltaS", "value": self.DeltaS},
-                            {"label": "conf", "value": self.conf}]
-                }
+                  "coords": self.coordinates,
+                  "fileName": self.file_name_full[1:],
+                  "contours": contours,
+                  "surfaces": surfaces,
+                  "metrics": [{"label": "Tau", "value": self.tU},
+                              {"label": "DeltaD", "value": self.DeltaD},
+                              {"label": "DeltaS", "value": self.DeltaS},
+                              {"label": "conf", "value": self.conf}]
+                  }
         return str(string).replace("'", "\"")
-        
 
     def get_back(self, w, h, r):
         """ 
@@ -157,7 +156,7 @@ class SolutionCombiner():
         h, w = self.image.shape[:2]
         r = self.r
         surfaces = self.surfaces
-        if len(surfaces) > 0 :
+        if len(surfaces) > 0:
             NJaune = sum([surface[0] for surface in self.surfaces])*r**2
             Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
             tU = NJaune/(w*h-NJaune)
@@ -168,9 +167,9 @@ class SolutionCombiner():
             self.tU = tU
             self.DeltaD = Md/(h/r)
             self.DeltaS = DeltaS2
-            if not model is None: 
-                self.conf = model.predict([[self.tU, self.DeltaD, self.DeltaS]])[0]**2
-            
+            if not model is None:
+                self.conf = model.predict(
+                    [[self.tU, self.DeltaD, self.DeltaS]])[0]**2
 
     def draw(self, title):
         cv2.imshow('thresh', self.thresh)
