@@ -45,7 +45,7 @@ def estimateSurface_address():
                 "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
     return Response(str(response).replace("'", "\""))
 
-filename = "./surface_estimator/test_data/finalized_model.sav"
+filename = "./surface_estimator/test_data/binary_model.sav"
 loaded_model = pickle.load(open(filename, 'rb'))
 
 @ app.route("/estimateSurface/coordinates/fromCV", methods=["POST"])
