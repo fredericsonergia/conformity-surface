@@ -3,6 +3,7 @@ from flask_cors import cross_origin, CORS
 from surface_estimator import SurfaceController
 from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
 import pickle
+import configparser
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "the quick brown fox jumps over the lazy   dog"
@@ -11,6 +12,12 @@ app.config["CORS_HEADERS"] = "Content-Type"
 cors = CORS(app, resources={
             r"/estimateSurface/coordinates": {"origins": "http://localhost:8080"}})
 
+config = configparser.ConfigParser()
+config.read("surface.config")
+Image, Batch, Model = config['IMAGE'], config['BATCH'], config['MODEL']
+w, h, r, R = int(Image["width (px)"]), int(Image["height (px)"]), float(Image["ratio (px/m)"]), float(Image["Radius (m)"])
+input_file, output_file = Batch["input"], Batch["output"]
+loaded_model = pickle.load(open(Model["path"], 'rb'))
 
 @app.route("/estimateSurface/coordinates", methods=["POST"])
 @cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
@@ -19,7 +26,6 @@ def estimateSurface_coords():
         return "Request was not a JSON", 400
     req = request.get_json(force=True)
     coordinates = [float(coord) for coord in req["coordinates"].split(',')]
-    w, h = 800, 400
     controller = SurfaceController()
     controller.set_coordinates(coordinates)
     controller.set_surface()
@@ -36,7 +42,6 @@ def estimateSurface_address():
         return "Request was not a JSON", 400
     req = request.get_json(force=True)
     address = req["address"]
-    w, h = 800, 400
     controller = SurfaceController()
     controller.set_address(address)
     controller.set_surface()
@@ -45,8 +50,6 @@ def estimateSurface_address():
                 "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
     return Response(str(response).replace("'", "\""))
 
-filename = "./surface_estimator/test_data/binary_model.sav"
-loaded_model = pickle.load(open(filename, 'rb'))
 
 @ app.route("/estimateSurface/coordinates/fromCV", methods=["POST"])
 @ cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
@@ -55,8 +58,6 @@ def estimateSurface_coords_from_cv():
         return "Request was not a JSON", 400
     req = request.get_json(force=True)
     coordinates = [float(coord) for coord in req["coordinates"].split(',')]
-    w, h = 800, 400
-    r, R = 6, 100
     sc = SolutionCombiner(coordinates)
     valid = sc.combine(w, h, r, R)
     if valid == -1:

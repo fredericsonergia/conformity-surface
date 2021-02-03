@@ -1,5 +1,7 @@
 from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
 import argparse
+import configparser
+import pickle
 
 
 class BatchComputer():
@@ -21,7 +23,7 @@ class BatchComputer():
             coords = [float(line.split(";")[0]), float(line.split(";")[1][:-1])]
             self.coordinates.append(coords)
 
-    def get_all(self, w, h, r, R):
+    def get_all(self, w, h, r, R, model):
         """
         Get the corresponding data for all coordinates in the file
         """
@@ -30,9 +32,10 @@ class BatchComputer():
             sc = SolutionCombiner(coordinates)
             valid = sc.combine(w, h, r, R)
             if valid == -1:
-                return FileNotFoundError
+                print("Invalid Image")
+                continue
             sc.get_surfaces()
-            sc.get_confidence()
+            sc.get_confidence(model)
             self.result += str(sc) + "\n"
         self.result
     
@@ -43,16 +46,22 @@ class BatchComputer():
         file = open(file_name, "w")
         file.write(self.result)
 
-w, h, r, R, = 800, 400, 6, 100
+
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--input", required=True,
-	help="path to the input file")
-ap.add_argument("-o", "--output", required=True,
-	help="path to the ouptut file")
+ap.add_argument("-c", "--config", required=True,
+	help="path to the configuration file")
 args = vars(ap.parse_args())
-computer = BatchComputer(args["input"])
+
+config = configparser.ConfigParser()
+config.read(args["config"])
+Image, Batch, Model = config['IMAGE'], config['BATCH'], config['MODEL']
+w, h, r, R = int(Image["width (px)"]), int(Image["height (px)"]), float(Image["ratio (px/m)"]), float(Image["Radius (m)"])
+input_file, output_file = Batch["input"], Batch["output"]
+model = pickle.load(open(Model["path"], 'rb'))
+
+computer = BatchComputer(input_file)
 computer.load_data()
 computer.extract_coordinates()
-computer.get_all(w, h, r, R)
-computer.save(args["output"])
+computer.get_all(w, h, r, R, model)
+computer.save(output_file)

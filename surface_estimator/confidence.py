@@ -95,9 +95,9 @@ def do_the_test(infos, model=None):
 start = time.time()
 
 filename = "./surface_estimator/test_data/binary_model.sav"
-train(infos, filename)
-# loaded_model = pickle.load(open(filename, 'rb'))
-# test(infos, loaded_model)
+# train(infos, filename)
+loaded_model = pickle.load(open(filename, 'rb'))
+test(infos, loaded_model)
 
 print(time.time()-start)
 print("\n DONE \n")
