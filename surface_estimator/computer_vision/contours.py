@@ -191,31 +191,3 @@ def draw_cnts(cnts, image):
 def get_building_from_contour(cnt):
     building = [point[0] for point in cnt]
     return building
-
-
-def surface_computer(coordinates):
-    w, h, r = 800, 400, 6
-    bf = BuildingFinder(coordinates=(2.1120532, 48.8606862))
-    bf.get_images(w, h, r, "./static/")
-    bf.load("./static/", all=True)
-    bf.get_lines()
-    surfaces, closest = bf.get_surfaces(6)
-    closest, surface_closest, per_closest, surf = closest
-    Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
-    print("N(batiment) =", len(surfaces))
-    print("Résolution :", w*h)
-    NJaune = sum([surface[0] for surface in surfaces])*r**2
-    print("NJaune (px) =", NJaune)
-
-    Tau = NJaune/(w*h - NJaune)
-    DeltaS2 = abs(surf**2 - Ms**2)/Ms**2
-    Md = sum([surface[1] for surface in surfaces])/len(surfaces)
-    print("Ms =", Ms)
-    print("Tau =", Tau)
-    print("Md =", Md/(h/r))
-    print("DeltaS =", np.sqrt(DeltaS2))
-    print("confiance", np.sqrt((1-Tau)*np.sqrt(DeltaS2) + (Md/(h/r))**2)/2)
-
-    building = get_building_from_contour(closest)
-
-    bf.draw_surface()
