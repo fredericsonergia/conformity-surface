@@ -9,7 +9,7 @@ import scipy.stats as sps
 import numpy as np
 from sklearn import tree
 import pickle
-import graphviz 
+import graphviz
 import matplotlib as mpl
 mpl.use("MacOSX")
 
@@ -46,16 +46,19 @@ infos = [getInfos(line) for line in lines]
 
 def train(infos, filename):
     Tau, DeltaD, DeltaS, errors = do_the_test(infos)
-    X, y = np.transpose([Tau, DeltaD, DeltaS]), [1-error if error < 0.1 else 0 for error in errors]
-    clf = tree.DecisionTreeRegressor(max_depth=4)
+    X, y = np.transpose([Tau, DeltaD, DeltaS]), [
+        1-error if error < 1 else 0 for error in errors]
+    clf = tree.DecisionTreeRegressor(max_depth=3)
     clf = clf.fit(X, y)
-    dot_data = tree.export_graphviz(clf, out_file=None) 
+    dot_data = tree.export_graphviz(clf, out_file=None)
     pickle.dump(clf, open(filename, 'wb'))
-    graph = graphviz.Source(dot_data) 
+    graph = graphviz.Source(dot_data)
     graph.render("confidence")
-    
+
+
 def test(infos, model):
     do_the_test(infos, model)
+
 
 def do_the_test(infos, model=None):
     errors = []
@@ -88,13 +91,14 @@ def do_the_test(infos, model=None):
                 line = str(i) + ";" + str(error) + ";" + str(sc.DeltaS) + ";" + \
                     str(sc.DeltaD) + ";" + str(sc.tU) + \
                     ";" + str(sc.conf) + "\n"
-                file.write(line)
+                file.write(line.replace(".", ","))
     file.close()
     return Tau, DeltaD, DeltaS, errors
 
+
 start = time.time()
 
-filename = "./surface_estimator/test_data/binary_model.sav"
+filename = "./surface_estimator/test_data/precise_model.sav"
 # train(infos, filename)
 loaded_model = pickle.load(open(filename, 'rb'))
 test(infos, loaded_model)

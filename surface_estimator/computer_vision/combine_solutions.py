@@ -1,12 +1,13 @@
 
 from surface_estimator.IGN_API import getData, getVille
-from surface_estimator.getImage import get_centered, plot_surroundings
+from surface_estimator.getImage import get_centered, get_image_with_pixels, plot_surroundings
 from surface_estimator.algorithmes.closest import getClosestBuildings, extractCoordinates, distance_polygon, isBuilding
 from surface_estimator.algorithmes.calcul_surface import perimetre
 from surface_estimator.computer_vision.contours import find_contours, BuildingFinder, ColorLabeler
 from surface_estimator.utils import get_inside_point
 import numpy as np
 import cv2
+from surface_estimator.computer_vision.image_processor import ImageProcessor
 
 
 class SolutionCombiner():
@@ -47,9 +48,14 @@ class SolutionCombiner():
             w, h, r, self.coordinates, self.code, [0])
         if centered is None:
             return -1
-        self.file_name, self.zone, self.bbox = centered
-        full = get_centered(
-            w, h, r, self.coordinates, self.code)
+        self.file_name, self.zone, self.bbox, center = centered
+        cadastre = get_image_with_pixels(
+            w, h, r, self.coordinates, center, self.code, self.zone, [1])
+        if cadastre is None:
+            return -1
+        self.file_name_cadastre = cadastre[0]
+        full = get_image_with_pixels(
+            w, h, r, self.coordinates, center, self.code, self.zone)
         if full is None:
             return -1
         self.file_name_full = full[0]
@@ -79,13 +85,18 @@ class SolutionCombiner():
         W, H = w/r, h/r
         self.get_buildings(R)
         image = cv2.imread(self.file_name)
-        print(self.file_name)
         plotted, self.contours = plot_surroundings(
             image, self.coordinates, self.hard_buildings, self.bbox, w, h, r)
         file_name = self.file_name[:-4] + "_combined.png"
         self.file_name_combined = file_name
         self.image = plotted
-        cv2.imwrite(file_name, self.image)
+        processor = ImageProcessor(image=cv2.imread(self.file_name_cadastre))
+        thresh = processor.get_binary(250)
+
+        no_lines = self.image
+        new_lines = processor.get_contours(thresh, no_lines)
+
+        cv2.imwrite(file_name, new_lines)
 
     def get_center_surface(self):
         """
@@ -96,8 +107,7 @@ class SolutionCombiner():
         h, w = self.image.shape[:2]
         center = (w//2, h//2)
         finder = BuildingFinder()
-        finder.load("./" + self.file_name_combined.split("/")
-                    [1], file=self.file_name_combined)
+        finder.load(file=self.file_name_combined)
         thresh = finder.binarize()
         x, y = (w//2, h//2)
         connex = finder.get_connex((y, x), thresh)
@@ -145,7 +155,7 @@ class SolutionCombiner():
                         self.cnt = cnt
                     self.contours.append(cnt)
                     surfaces.append(
-                        ((len(mask[labels == label])+per*2)/r**2, d/r))
+                        ((len(mask[labels == label])+per*1.5)/r**2, d/r))
                     k += 1
         self.surfaces = surfaces
 
