@@ -116,8 +116,6 @@ class BuildingFinder():
     def get_lines(self):
         processor = ImageProcessor(image=self.cadastre)
         thresh = processor.get_binary(250)
-        # cv2.imshow("thresh",thresh)
-        # cv2.waitKey(0)
         no_lines = self.bu
         new_lines = processor.get_contours(thresh, no_lines)
         cv2.imshow("new_lines", new_lines)
@@ -135,9 +133,6 @@ class BuildingFinder():
             building = get_building_from_contour(cnt)
             d = distance_polygon(center, building)
             S = surface(building)
-            # print(S/r**2, d)
-
-            # draw_cnts([cnt], self.back)
             per = perimetre(building)
             if d/r < dist_mini:
                 dist_mini = d/r
@@ -165,13 +160,8 @@ def find_contours(image_path):
     blurred = cv2.GaussianBlur(resized, (3, 3), 0)
     gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
     lab = cv2.cvtColor(blurred, cv2.COLOR_BGR2LAB)
-    # thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)[1]
     thresh = cv2.inRange(gray, 200, 210)
-    # plt.imshow(thresh)
-    # plt.show()
-    # find contours in the thresholded image
-    # cv2.imshow("thresh 2", thresh)
-    # cv2.waitKey(0)
+
     cv2.imwrite("./static/" + stringify((2.2609962353137605,
                                          48.88626507243932)) + "/" + "thresh.png", thresh)
 
@@ -204,9 +194,7 @@ def get_building_from_contour(cnt):
 
 
 def surface_computer(coordinates):
-    # buildings = find_contours("./static/building&lines.png")
     w, h, r = 800, 400, 6
-    # bf = BuildingFinder(coordinates = (2.2609962353137605,48.88626507243932))
     bf = BuildingFinder(coordinates=(2.1120532, 48.8606862))
     bf.get_images(w, h, r, "./static/")
     bf.load("./static/", all=True)
@@ -227,14 +215,7 @@ def surface_computer(coordinates):
     print("Md =", Md/(h/r))
     print("DeltaS =", np.sqrt(DeltaS2))
     print("confiance", np.sqrt((1-Tau)*np.sqrt(DeltaS2) + (Md/(h/r))**2)/2)
-    # bf.load("./static/building&lines.png")
-    # surfaces = bf.get_surfaces(6)
+
     building = get_building_from_contour(closest)
 
     bf.draw_surface()
-    # cnts = surfaces[1][0]
-    # img = cv2.imread('./static/back.png')
-    # draw_cnts([cnts], img)
-
-
-# surface_computer("")

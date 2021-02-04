@@ -32,8 +32,7 @@ class ImageProcessor():
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
 
         edges = cv2.Canny(gray, 50, 255, apertureSize=5)
-        # cv2.imshow("canny", edges)
-        # cv2.waitKey(0)
+
         minLineLength = 20
         maxLineGap = 20
         lines_edges = cv2.HoughLinesP(
@@ -53,7 +52,6 @@ class ImageProcessor():
         return background_image
 
     def save_file(self, img, prefix):
-        # filename = "{}_{}.png".format(prefix,os.getpid())
         filename = prefix + ".png"
         cv2.imwrite(filename, img)
         return filename

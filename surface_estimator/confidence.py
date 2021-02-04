@@ -92,8 +92,6 @@ def do_the_test(infos, model=None):
                     str(sc.DeltaD) + ";" + str(sc.tU) + \
                     ";" + str(sc.conf) + "\n"
                 file.write(line.replace(".", ","))
-            # if error > 0.1:
-            #     sc.draw(info[0])
     file.close()
     return Tau, DeltaD, DeltaS, errors
 
