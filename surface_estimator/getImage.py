@@ -106,7 +106,7 @@ def getImage(w, h, r, coords, code, layersIndex=range(len(availableLayers))):
     with open(folder + file_name, 'wb') as fp:
         fp.write(img)
     print("Image retrieved")
-    return file_name, zone, bbox
+    return folder + file_name, zone, bbox
 
 
 def download_image(w, h, bbox, codeINSEE, layers, zone):
@@ -138,7 +138,7 @@ def get_image_with_pixels(w, h, r, coords, center, code, zone, layersIndex=range
     with open(folder + file_name, 'wb') as fp:
         fp.write(img)
     print("Image retrieved")
-    return file_name, zone, bbox
+    return folder + file_name, zone, bbox
 
 
 def toDirectory(liste):
@@ -163,11 +163,11 @@ def get_bbox_from_lambert(X, Y, W, H):
 
 def get_centered(w, h, r, coords, code, layersIndex=range(len(availableLayers))):
     file_name, zone, bbox = getImage(w, h, r, coords, code, layersIndex)
-    img = cv2.imread(folder + file_name)
+    img = cv2.imread(file_name)
     if img is None:
         return None
     jaune = [51, 204, 255]
     center = find_closest(img, jaune)
     file_name_cadastre, zone, bbox = get_image_with_pixels(
         w, h, r, coords, center, code, zone, layersIndex)
-    return folder + file_name_cadastre, zone, bbox
+    return file_name_cadastre, zone, bbox, center

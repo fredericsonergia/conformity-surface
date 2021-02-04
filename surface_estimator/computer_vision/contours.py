@@ -53,22 +53,21 @@ class BuildingFinder():
     def get_images(self, w, h, r, folder):
         ville, code = getVille(self.coordinates)
         file_name, zone, bbox = getImage(w, h, r, self.coordinates, code, [0])
-        print(file_name)
         self.img = cv2.imread(folder + file_name)
         jaune = [51, 204, 255]
         center = find_closest(self.img, jaune)
-        self.file_name_cadastre, zone, bbox = get_image_with_pixels(
+        self.file_name_cadastre, zone, bbox, folder = get_image_with_pixels(
             w, h, r, self.coordinates, center, code, zone, [1])
-        self.file_name_bu, zone, bbox = get_image_with_pixels(
+        self.file_name_bu, zone, bbox, folder = get_image_with_pixels(
             w, h, r, self.coordinates, center, code, zone, [0])
-        self.file_name_back, zone, bbox = get_image_with_pixels(
+        self.file_name_back, zone, bbox, folder = get_image_with_pixels(
             w, h, r, self.coordinates, center, code, zone, [2, 1, 0, 4, 5, 7, 8, 9])
 
     def load(self, folder, all=False, file=None):
         if all:
-            self.cadastre = cv2.imread(folder + self.file_name_cadastre)
-            self.bu = cv2.imread(folder + self.file_name_bu)
-            self.back = cv2.imread(folder + self.file_name_back)
+            self.cadastre = cv2.imread(self.file_name_cadastre)
+            self.bu = cv2.imread(self.file_name_bu)
+            self.back = cv2.imread(self.file_name_back)
         else:
             if file is None:
                 file = self.file_name
