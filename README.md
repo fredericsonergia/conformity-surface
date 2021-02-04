@@ -6,10 +6,14 @@
 pip3 install -r requirements.txt
 ```
 
+## Server Documentation
+
+<${baseURL}/docs#/>
+
 ## Launch server
 
 ```bash
-python3 main.py
+uvicorn main:app --reload
 ```
 
 ## Lauch tests

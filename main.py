@@ -1,71 +1,112 @@
-from flask import Flask, request, Response
-from flask_cors import cross_origin, CORS
-from surface_estimator import SurfaceController
-from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+import json
 import pickle
 import configparser
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "the quick brown fox jumps over the lazy   dog"
-app.config["CORS_HEADERS"] = "Content-Type"
+from surface_estimator import SurfaceController
+from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
 
-cors = CORS(app, resources={
-            r"/estimateSurface/coordinates": {"origins": "http://localhost:8080"}})
 
+app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+"""
+Recover the configuration file 
+"""
 config = configparser.ConfigParser()
 config.read("surface.config")
 Image, Batch, Model = config['IMAGE'], config['BATCH'], config['MODEL']
-w, h, r, R = int(Image["width (px)"]), int(Image["height (px)"]), float(Image["ratio (px/m)"]), float(Image["Radius (m)"])
+w, h, r, R = int(Image["width (px)"]), int(Image["height (px)"]), float(
+    Image["ratio (px/m)"]), float(Image["Radius (m)"])
 input_file, output_file = Batch["input"], Batch["output"]
 loaded_model = pickle.load(open(Model["path"], 'rb'))
 
-@app.route("/estimateSurface/coordinates", methods=["POST"])
-@cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
-def estimateSurface_coords():
-    if not request.is_json:
-        return "Request was not a JSON", 400
-    req = request.get_json(force=True)
-    coordinates = [float(coord) for coord in req["coordinates"].split(',')]
+
+"""
+Define the data classes
+"""
+
+
+class coordsRequest(BaseModel):
+    coordinates: str
+
+
+class adressRequest(BaseModel):
+    address: str
+
+
+class BasicResponse(BaseModel):
+    surface: float
+    coords: list
+    fileName: str
+
+
+class FullResponse(BaseModel):
+    surface: float
+    coords: list
+    fileName: str
+    contours: list
+    surfaces: list
+    metrics: list
+
+
+"""
+Define the routes
+"""
+
+
+@app.post("/estimateSurface/coordinates", response_model=BasicResponse)
+def estimateSurface_coords(req: coordsRequest):
+
+    coordinates = [float(coord) for coord in req.coordinates.split(',')]
     controller = SurfaceController()
     controller.set_coordinates(coordinates)
     controller.set_surface()
     controller.get_image(w, h)
     response = {"surface": controller.computedSurf,
                 "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
-    return Response(str(response).replace("'", "\""))
+    return response
 
 
-@ app.route("/estimateSurface/address", methods=["POST"])
-@ cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
-def estimateSurface_address():
-    if not request.is_json:
-        return "Request was not a JSON", 400
-    req = request.get_json(force=True)
-    address = req["address"]
+@ app.post("/estimateSurface/address", response_model=BasicResponse)
+def estimateSurface_address(req: adressRequest):
+
+    address = req.address
     controller = SurfaceController()
     controller.set_address(address)
     controller.set_surface()
     controller.get_image(w, h)
     response = {"surface": controller.computedSurf,
                 "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
-    return Response(str(response).replace("'", "\""))
+    return response
 
 
-@ app.route("/estimateSurface/coordinates/fromCV", methods=["POST"])
-@ cross_origin(origin="localhost", headers=["Content-Type", "Authorization"])
-def estimateSurface_coords_from_cv():
-    if not request.is_json:
-        return "Request was not a JSON", 400
-    req = request.get_json(force=True)
-    coordinates = [float(coord) for coord in req["coordinates"].split(',')]
+@ app.post("/estimateSurface/coordinates/fromCV", response_model=FullResponse)
+def estimateSurface_coords_from_cv(req: coordsRequest):
+
+    coordinates = [float(coord) for coord in req.coordinates.split(',')]
     sc = SolutionCombiner(coordinates)
     valid = sc.combine(w, h, r, R)
     if valid == -1:
-        return Response(FileNotFoundError)
+        return FileNotFoundError
     sc.get_surfaces()
     sc.get_confidence(loaded_model)
-    return Response(str(sc))
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return json.loads(str(sc))
