@@ -6,6 +6,10 @@
 pip3 install -r requirements.txt
 ```
 
+## Server Documentation
+
+<${baseURL}/docs#/>
+
 ## Launch server
 
 ```bash
