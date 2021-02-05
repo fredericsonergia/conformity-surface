@@ -92,7 +92,7 @@ def do_the_test(infos, model=None):
                 confidence.append(sc.conf)
                 line = str(i) + ";" + str(error) + ";" + str(sc.DeltaS) + ";" + \
                     str(sc.DeltaD) + ";" + str(sc.tU) + \
-                    ";" + str(sc.conf) + "\n"
+                    ";" + str(sc.tLignes) + "\n"
                 file.write(line.replace(".", ","))
     file.close()
     return Tau, DeltaD, DeltaS, TauLignes,  errors
