@@ -45,8 +45,8 @@ infos = [getInfos(line) for line in lines]
 
 
 def train(infos, filename):
-    Tau, DeltaD, DeltaS, errors = do_the_test(infos)
-    X, y = np.transpose([Tau, DeltaD, DeltaS]), [
+    Tau, DeltaD, DeltaS, TauLignes, errors = do_the_test(infos)
+    X, y = np.transpose([Tau, DeltaD, DeltaS, TauLignes]), [
         1-error if error < 1 else 0 for error in errors]
     clf = tree.DecisionTreeRegressor(max_depth=3)
     clf = clf.fit(X, y)
@@ -66,6 +66,7 @@ def do_the_test(infos, model=None):
     DeltaD = []
     DeltaS = []
     confidence = []
+    TauLignes = []
     thresh = 0.1
     i = 0
     file = open("./surface_estimator/test_data/result.csv", "w")
@@ -86,6 +87,7 @@ def do_the_test(infos, model=None):
                 Tau.append(sc.tU)
                 DeltaD.append(sc.DeltaD)
                 DeltaS.append(sc.DeltaS)
+                TauLignes.append(sc.tLignes)
                 errors.append(error**2)
                 confidence.append(sc.conf)
                 line = str(i) + ";" + str(error) + ";" + str(sc.DeltaS) + ";" + \
@@ -93,12 +95,12 @@ def do_the_test(infos, model=None):
                     ";" + str(sc.conf) + "\n"
                 file.write(line.replace(".", ","))
     file.close()
-    return Tau, DeltaD, DeltaS, errors
+    return Tau, DeltaD, DeltaS, TauLignes,  errors
 
 
 start = time.time()
 
-filename = "./surface_estimator/test_data/precise_model.sav"
+filename = "./surface_estimator/test_data/t_lignes_model.sav"
 # train(infos, filename)
 loaded_model = pickle.load(open(filename, 'rb'))
 test(infos, loaded_model)

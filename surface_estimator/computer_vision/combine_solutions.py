@@ -90,7 +90,8 @@ class SolutionCombiner():
         file_name = self.file_name[:-4] + "_combined.png"
         self.file_name_combined = file_name
         self.image = plotted
-        processor = ImageProcessor(image=cv2.imread(self.file_name_cadastre))
+        self.cadastre = cv2.imread(self.file_name_cadastre)
+        processor = ImageProcessor(image=self.cadastre)
         thresh = processor.get_binary(250)
 
         no_lines = self.image
@@ -169,7 +170,8 @@ class SolutionCombiner():
         if len(surfaces) > 0:
             NJaune = sum([surface[0] for surface in self.surfaces])*r**2
             Ms = sum([surface[0] for surface in surfaces])/len(surfaces)
-            tU = NJaune/(w*h-NJaune)
+            tU = NJaune/(w*h)
+            tLignes = len(self.cadastre[self.cadastre <= 100])/(w*h-NJaune)
             self.surf = surfaces[self.building_index][0]
             DeltaS2 = abs(self.surf - Ms)/Ms
             Md = sum([surface[1] for surface in surfaces]) / \
@@ -177,9 +179,10 @@ class SolutionCombiner():
             self.tU = tU
             self.DeltaD = Md/(h/r)
             self.DeltaS = DeltaS2
+            self.tLignes = tLignes
             if not model is None:
                 self.conf = model.predict(
-                    [[self.tU, self.DeltaD, self.DeltaS]])[0]**2
+                    [[self.tU, self.DeltaD, self.DeltaS, self.tLignes]])[0]**4
 
     def draw(self, title):
         cv2.imshow('thresh', self.thresh)
