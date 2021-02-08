@@ -8,10 +8,11 @@ from surface_estimator.utils import get_inside_point
 import numpy as np
 import cv2
 from surface_estimator.computer_vision.image_processor import ImageProcessor
+from surface_estimator.coordonnees.coordinates import getLocationFromAddress
 
 
 class SolutionCombiner():
-    def __init__(self, coordinates):
+    def __init__(self, coordinates=None):
         self.coordinates = coordinates
         self.code = None
         self.contours = []
@@ -39,6 +40,11 @@ class SolutionCombiner():
                               {"label": "conf", "value": self.conf}]
                   }
         return str(string).replace("'", "\"")
+
+    def set_address(self, address):
+        self.address = address
+        coordinates = getLocationFromAddress(self.address)
+        self.coordinates = coordinates
 
     def get_back(self, w, h, r):
         """ 
