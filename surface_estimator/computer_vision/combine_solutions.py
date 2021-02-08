@@ -35,6 +35,7 @@ class SolutionCombiner():
                   "metrics": [{"label": "Tau", "value": self.tU},
                               {"label": "DeltaD", "value": self.DeltaD},
                               {"label": "DeltaS", "value": self.DeltaS},
+                              {"label": "TauLignes", "value": self.tLignes},
                               {"label": "conf", "value": self.conf}]
                   }
         return str(string).replace("'", "\"")
@@ -159,6 +160,9 @@ class SolutionCombiner():
                         ((len(mask[labels == label])+per*1.5)/r**2, d/r))
                     k += 1
         self.surfaces = surfaces
+        full = cv2.imread(self.file_name_full)
+        cv2.drawContours(full, [self.cnt], -1, (0, 0, 255), 2)
+        cv2.imwrite(self.file_name_full, full)
 
     def get_confidence(self, model):
         """
