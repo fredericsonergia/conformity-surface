@@ -110,7 +110,7 @@ def getImage(w, h, r, coords, code, layersIndex=range(len(availableLayers))):
 
 
 def download_image(w, h, bbox, codeINSEE, layers, zone):
-    URL = URL = baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers=" + \
+    URL = baseURL + codeINSEE + ".wms?service=wms&version=1.3&request=GetMap&layers=" + \
         stringify(layers) + "&format=image/png&crs=EPSG:39" + zone + \
         "&bbox=" + stringify(bbox) + "&width="+str(w) + \
         "&height="+str(h)+"&styles="

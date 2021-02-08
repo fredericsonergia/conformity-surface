@@ -47,8 +47,8 @@ infos = [getInfos(line) for line in lines]
 def train(infos, filename):
     Tau, DeltaD, DeltaS, TauLignes, errors = do_the_test(infos)
     X, y = np.transpose([Tau, DeltaD, DeltaS, TauLignes]), [
-        1-error if error < 1 else 0 for error in errors]
-    clf = tree.DecisionTreeRegressor(max_depth=3)
+        1 if error < .1 else 0 for error in errors]
+    clf = tree.DecisionTreeRegressor(max_depth=10, min_samples_leaf=5)
     clf = clf.fit(X, y)
     dot_data = tree.export_graphviz(clf, out_file=None)
     pickle.dump(clf, open(filename, 'wb'))
@@ -100,10 +100,10 @@ def do_the_test(infos, model=None):
 
 start = time.time()
 
-filename = "./surface_estimator/test_data/t_lignes_model.sav"
-# train(infos, filename)
-loaded_model = pickle.load(open(filename, 'rb'))
-test(infos, loaded_model)
+filename = "./surface_estimator/test_data/binary_model.sav"
+train(infos, filename)
+# loaded_model = pickle.load(open(filename, 'rb'))
+# test(infos, loaded_model)
 
 print(time.time()-start)
 print("\n DONE \n")
