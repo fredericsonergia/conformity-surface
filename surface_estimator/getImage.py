@@ -46,7 +46,7 @@ def getPlottedPlan(coords, coordinates, code, r, width, height):
     H = height/r
     bbox = getBbox(coords, W, H)
     file_name, zone, bbox = getImage(width, height, r, coords, code)
-    img = Image.open(r'' + folder + file_name)
+    img = Image.open(r'' + file_name)
     batiment = [np.array(lambert(degre2rad(coord[0]), degre2rad(
         coord[1]))) - np.array([coords[0] - 3, 0]) for coord in coordinates]
     batX, batY = [r*(coord[0] - bbox[0]) for coord in batiment], [r *
@@ -56,8 +56,8 @@ def getPlottedPlan(coords, coordinates, code, r, width, height):
     ax.imshow(img, extent=[0, width, 0, height])
     ax.plot(1*np.array(batX), 1*np.array(batY), color='firebrick')
     plt.axis('off')
-    plt.savefig(folder + file_name, bbox_inches='tight')
-    return folder + file_name, zone, bbox
+    plt.savefig(file_name, bbox_inches='tight')
+    return file_name, zone, bbox
 
 
 def plot_surroundings(image, coords, surroundings, bbox, w, h, r):
