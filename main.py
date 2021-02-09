@@ -49,7 +49,7 @@ class coordsRequest(BaseModel):
     coordinates: str
 
 
-class adressRequest(BaseModel):
+class addressRequest(BaseModel):
     address: str
 
 
@@ -87,7 +87,7 @@ def estimateSurface_coords(req: coordsRequest):
 
 
 @ app.post("/estimateSurface/address", response_model=BasicResponse)
-def estimateSurface_address(req: adressRequest):
+def estimateSurface_address(req: addressRequest):
 
     address = req.address
     controller = SurfaceController()
@@ -104,6 +104,18 @@ def estimateSurface_coords_from_cv(req: coordsRequest):
 
     coordinates = [float(coord) for coord in req.coordinates.split(',')]
     sc = SolutionCombiner(coordinates)
+    valid = sc.combine(w, h, r, R)
+    if valid == -1:
+        return FileNotFoundError
+    sc.get_surfaces()
+    sc.get_confidence(loaded_model)
+    return json.loads(str(sc))
+
+
+@ app.post("/estimateSurface/address/fromCV", response_model=FullResponse)
+def estimateSurface_coords_from_cv(req: addressRequest):
+    sc = SolutionCombiner()
+    sc.set_address(req.address)
     valid = sc.combine(w, h, r, R)
     if valid == -1:
         return FileNotFoundError
