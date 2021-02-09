@@ -20,14 +20,15 @@ class BatchComputer():
         """
         self.coordinates = []
         for line in self.lines:
-            coords = [float(line.split(";")[0]), float(line.split(";")[1][:-1])]
+            coords = [float(line.split(";")[0]),
+                      float(line.split(";")[1][:-1])]
             self.coordinates.append(coords)
 
     def get_all(self, w, h, r, R, model):
         """
         Get the corresponding data for all coordinates in the file
         """
-        self.result = ""
+        self.result = "["
         for coordinates in self.coordinates:
             sc = SolutionCombiner(coordinates)
             valid = sc.combine(w, h, r, R)
@@ -36,9 +37,9 @@ class BatchComputer():
                 continue
             sc.get_surfaces()
             sc.get_confidence(model)
-            self.result += str(sc) + "\n"
-        self.result
-    
+            self.result += str(sc) + ",\n"
+        self.result = ']'
+
     def save(self, file_name):
         """
         save the data onto a file
@@ -47,18 +48,18 @@ class BatchComputer():
         file.write(self.result)
 
 
-
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--config", required=True,
-	help="path to the configuration file")
+                help="path to the configuration file")
 args = vars(ap.parse_args())
 
 config = configparser.ConfigParser()
 config.read(args["config"])
-Image, Batch, Model = config['IMAGE'], config['BATCH'], config['MODEL']
-w, h, r, R = int(Image["width (px)"]), int(Image["height (px)"]), float(Image["ratio (px/m)"]), float(Image["Radius (m)"])
+Image, Batch, Confidence = config['IMAGE'], config['BATCH'], config['CONFIDENCE']
+w, h, r, R = int(Image["width in px"]), int(Image["height in px"]), float(
+    Image["ratio in px/m"]), float(Image["Radius in m"])
 input_file, output_file = Batch["input"], Batch["output"]
-model = pickle.load(open(Model["path"], 'rb'))
+model = pickle.load(open(Confidence["path"], 'rb'))
 
 computer = BatchComputer(input_file)
 computer.load_data()

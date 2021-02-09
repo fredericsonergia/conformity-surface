@@ -33,11 +33,10 @@ Recover the configuration file
 """
 config = configparser.ConfigParser()
 config.read("surface.config")
-Image, Batch, Model = config['IMAGE'], config['BATCH'], config['MODEL']
-w, h, r, R = int(Image["width (px)"]), int(Image["height (px)"]), float(
-    Image["ratio (px/m)"]), float(Image["Radius (m)"])
-input_file, output_file = Batch["input"], Batch["output"]
-loaded_model = pickle.load(open(Model["path"], 'rb'))
+Image, Confidence = config['IMAGE'], config['CONFIDENCE']
+w, h, r, R = int(Image["width in px"]), int(Image["height in px"]), float(
+    Image["ratio in px/m"]), float(Image["Radius in m"])
+loaded_model = pickle.load(open(Confidence["path"], 'rb'))
 
 
 """

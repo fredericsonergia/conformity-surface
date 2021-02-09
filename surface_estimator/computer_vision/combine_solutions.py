@@ -22,6 +22,7 @@ class SolutionCombiner():
         self.DeltaD = None
         self.DeltaS = None
         self.conf = None
+        self.cnt = []
         pass
 
     def __str__(self):
