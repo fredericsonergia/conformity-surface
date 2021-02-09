@@ -38,7 +38,7 @@ class BatchComputer():
             sc.get_surfaces()
             sc.get_confidence(model)
             self.result += str(sc) + ",\n"
-        self.result = ']'
+        self.result += ']'
 
     def save(self, file_name):
         """

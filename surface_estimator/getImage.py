@@ -96,11 +96,14 @@ def getImage(w, h, r, coords, code, layersIndex=range(len(availableLayers))):
     H = h/r
     bbox = getBbox(coords, W, H)
     img = download_image(w, h, bbox, codeINSEE, layers, zone)
+
+    if img is None:
+        return None
     file_name = stringify(coords) + "/" + stringify(layersIndex) + ".png"
     Folder = folder + toDirectory(file_name.split('/')[:-1])
     print(Folder)
-    # if not os.path.exists(folder):
-    #     os.mkdirs(folder)
+    if layersIndex == [1]:
+        print(img)
     if not os.path.exists(Folder):
         os.makedirs(Folder)
     with open(folder + file_name, 'wb') as fp:
@@ -115,6 +118,10 @@ def download_image(w, h, bbox, codeINSEE, layers, zone):
         "&bbox=" + stringify(bbox) + "&width="+str(w) + \
         "&height="+str(h)+"&styles="
     res = rq.get(URL)
+    i = 0
+    while res.content is None and i < 100:
+        res = rq.get(URL)
+        i += 1
     return res.content
 
 
@@ -129,6 +136,8 @@ def get_image_with_pixels(w, h, r, coords, center, code, zone, layersIndex=range
     H = h/r
     bbox = get_bbox_from_lambert(Xc, Yc, W, H)
     img = download_image(w, h, bbox, codeINSEE, layers, zone)
+    if img is None:
+        return None
     file_name = stringify(coords) + "/" + stringify(center) + \
         stringify(layersIndex) + ".png"
     Folder = folder + toDirectory(file_name.split('/')[:-1])
@@ -168,6 +177,10 @@ def get_centered(w, h, r, coords, code, layersIndex=range(len(availableLayers)))
         return None
     jaune = [51, 204, 255]
     center = find_closest(img, jaune)
-    file_name_cadastre, zone, bbox = get_image_with_pixels(
+    cadastre = get_image_with_pixels(
         w, h, r, coords, center, code, zone, layersIndex)
-    return file_name_cadastre, zone, bbox, center
+    if cadastre is None:
+        return None
+    else:
+        file_name_cadastre, zone, bbox = cadastre
+        return file_name_cadastre, zone, bbox, center

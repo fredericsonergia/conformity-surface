@@ -21,8 +21,9 @@ class SolutionCombiner():
         self.tU = None
         self.DeltaD = None
         self.DeltaS = None
+        self.tLignes = None
         self.conf = None
-        self.cnt = []
+        self.cnt = None
         pass
 
     def __str__(self):
@@ -168,7 +169,8 @@ class SolutionCombiner():
                     k += 1
         self.surfaces = surfaces
         full = cv2.imread(self.file_name_full)
-        cv2.drawContours(full, [self.cnt], -1, (0, 0, 255), 2)
+        if not self.cnt is None:
+            cv2.drawContours(full, [self.cnt], -1, (0, 0, 255), 2)
         cv2.imwrite(self.file_name_full, full)
 
     def get_confidence(self, model):

@@ -1,0 +1,207 @@
+{
+  "openapi": "3.0.2",
+  "info": { "title": "FastAPI", "version": "0.1.0" },
+  "paths": {
+    "/estimateSurface/coordinates": {
+      "post": {
+        "summary": "Estimatesurface Coords",
+        "operationId": "estimateSurface_coords_estimateSurface_coordinates_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/coordsRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BasicResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimateSurface/address": {
+      "post": {
+        "summary": "Estimatesurface Address",
+        "operationId": "estimateSurface_address_estimateSurface_address_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/addressRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BasicResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimateSurface/coordinates/fromCV": {
+      "post": {
+        "summary": "Estimatesurface Coords From Cv",
+        "operationId": "estimateSurface_coords_from_cv_estimateSurface_coordinates_fromCV_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/coordsRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FullResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimateSurface/address/fromCV": {
+      "post": {
+        "summary": "Estimatesurface Coords From Cv",
+        "operationId": "estimateSurface_coords_from_cv_estimateSurface_address_fromCV_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/addressRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FullResponse" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BasicResponse": {
+        "title": "BasicResponse",
+        "required": ["surface", "coords", "fileName"],
+        "type": "object",
+        "properties": {
+          "surface": { "title": "Surface", "type": "number" },
+          "coords": { "title": "Coords", "type": "array", "items": {} },
+          "fileName": { "title": "Filename", "type": "string" }
+        }
+      },
+      "FullResponse": {
+        "title": "FullResponse",
+        "required": [
+          "surface",
+          "coords",
+          "fileName",
+          "contours",
+          "surfaces",
+          "metrics"
+        ],
+        "type": "object",
+        "properties": {
+          "surface": { "title": "Surface", "type": "number" },
+          "coords": { "title": "Coords", "type": "array", "items": {} },
+          "fileName": { "title": "Filename", "type": "string" },
+          "contours": { "title": "Contours", "type": "array", "items": {} },
+          "surfaces": { "title": "Surfaces", "type": "array", "items": {} },
+          "metrics": { "title": "Metrics", "type": "array", "items": {} }
+        }
+      },
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ValidationError" }
+          }
+        }
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": ["loc", "msg", "type"],
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "msg": { "title": "Message", "type": "string" },
+          "type": { "title": "Error Type", "type": "string" }
+        }
+      },
+      "addressRequest": {
+        "title": "addressRequest",
+        "required": ["address"],
+        "type": "object",
+        "properties": { "address": { "title": "Address", "type": "string" } }
+      },
+      "coordsRequest": {
+        "title": "coordsRequest",
+        "required": ["coordinates"],
+        "type": "object",
+        "properties": {
+          "coordinates": { "title": "Coordinates", "type": "string" }
+        }
+      }
+    }
+  }
+}

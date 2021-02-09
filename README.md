@@ -12,7 +12,11 @@ pip3 install -r requirements.txt
 
 ### Server Documentation
 
+Fast API based Swagger to be found on this address
+
 <${baseURL}/docs#/>
+
+You can access the `.json` documentation file `openapi.json` at the root of the project
 
 ### Launch server
 
