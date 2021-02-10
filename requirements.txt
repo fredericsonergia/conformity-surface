@@ -30,3 +30,4 @@ fastapi
 uvicorn
 fastapi
 aiofiles
+uvicorn
