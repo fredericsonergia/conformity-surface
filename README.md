@@ -2,39 +2,39 @@
 
 ## API
 
-How to install the requirements and launch the API to be called from the frontend client
+Comment installer les dépendances et lancer l'API
 
-### Install requirements
+### Installation des dépendances
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-### Server Documentation
+### Documentation de l'API
 
-Fast API based Swagger to be found on this address
+Le swagger de l'API se trouve à l'adresse suivante
 
 <${baseURL}/docs#/>
 
-You can access the `.json` documentation file `openapi.json` at the root of the project
+Ou est accessible sur le répository à la racine sur le fichier `swagger.json`
 
-### Launch server
+### Lancer le serveur
 
-The server is launched by default on port 8000.
-Please be sure to have filled the `surface.config` file with the desired values before launching the server.
+Le seveur utilise par défaut le port 8000
+Tenez à vérifier que le fichier de configuration `surface.config` avec les valeurs désirées avant de lancer le serveur
 
 ```bash
 uvicorn main:app --reload
 ```
 
-To change the port of the server you can simply add these lines at the end of `main.py`:
+Pour modifier le port du serveur il suffit de rajouter ces quelque lignes à la fin du fichier `main.py`situé à la racine
 
 ```python=
 if __name__ == "__main__":
     uvicorn.run(app, port=8000)
 ```
 
-then run
+Puis lancer
 
 ```bash
 python3 main.py
@@ -42,20 +42,22 @@ python3 main.py
 
 ## CLI
 
-### Lauch tests
+### Lancer les tests
 
 Work in progress
 
-### Launch batch computation
+### Lancer un calcul par batch
 
-It is also possible to use the module for a quick computation of a batch of coordinates registered in a file.
-You'll then have to indicate the corresponding input and output paths in the `[Batch]` section of the configuration file.
+Il est possible d'utiliser le module pour effectuer un calcul par batch de coordinnées enregistrées dans un fichier `.csv`. Il s'agit alors d'indiquer les chemins d'accès aux fichier d'entrée et de sortie dans la section `[Batch]` du fichier de configuration (indiqué en paramètre)
 
 ```bash
-python3 batchs.py -c path/to/config/file.config
+cd src
+python3 batchs.py -c path/to/config/file.config -m True
 ```
 
-The input file should be formatted as follows
+Le paramètre `-m` est facultatif et permet de forcer la mise à jour des données d'urbanisme
+
+Le fichier d'entrée doit être de la forme suivante :
 
 ```csv
 Latitude1;Longitude1
@@ -63,4 +65,4 @@ Latitide2;Longitude2
 ...;...
 ```
 
-To know more about the format of the output please refer to the `SolutionCombiner` object and its overwritten `str` method
+Pour en savoir plus sur le format de la sortie, veuillez vous référer à l'objet `SolutionCombiner` (en particulier sa méthode `str`) dans le fichier `combine_solutions.py`

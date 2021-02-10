@@ -5,8 +5,9 @@ import pickle
 
 
 class BatchComputer():
-    def __init__(self, file_name):
+    def __init__(self, file_name, MAJ):
         self.file_name = file_name
+        self.MAJ = MAJ
 
     def load_data(self):
         with open(self.file_name) as coordinates_file:
@@ -30,7 +31,7 @@ class BatchComputer():
         """
         self.result = "["
         for coordinates in self.coordinates:
-            sc = SolutionCombiner(coordinates)
+            sc = SolutionCombiner(coordinates, self.MAJ)
             valid = sc.combine(w, h, r, R)
             if valid == -1:
                 print("Invalid Image")
@@ -51,8 +52,10 @@ class BatchComputer():
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--config", required=True,
                 help="path to the configuration file")
+ap.add_argument("-m", '--maj', required=False,
+                help="update the building data")
 args = vars(ap.parse_args())
-
+MAJ = False if "maj" in args.keys() is None else args["maj"]
 config = configparser.ConfigParser()
 config.read(args["config"])
 Image, Batch, Confidence = config['IMAGE'], config['BATCH'], config['CONFIDENCE']
@@ -61,7 +64,7 @@ w, h, r, R = int(Image["width in px"]), int(Image["height in px"]), float(
 input_file, output_file = Batch["input"], Batch["output"]
 model = pickle.load(open(Confidence["path"], 'rb'))
 
-computer = BatchComputer(input_file)
+computer = BatchComputer(input_file, args["maj"])
 computer.load_data()
 computer.extract_coordinates()
 computer.get_all(w, h, r, R, model)

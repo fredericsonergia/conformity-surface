@@ -9,6 +9,7 @@ import configparser
 
 from surface_estimator import SurfaceController
 from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
+import uvicorn
 
 
 app = FastAPI()
@@ -121,3 +122,7 @@ def estimateSurface_coords_from_cv(req: addressRequest):
     sc.get_surfaces()
     sc.get_confidence(loaded_model)
     return json.loads(str(sc))
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -12,7 +12,7 @@ from surface_estimator.coordonnees.coordinates import getLocationFromAddress
 
 
 class SolutionCombiner():
-    def __init__(self, coordinates=None):
+    def __init__(self, coordinates=None, Maj=False):
         self.coordinates = coordinates
         self.code = None
         self.contours = []
@@ -24,6 +24,7 @@ class SolutionCombiner():
         self.tLignes = None
         self.conf = None
         self.cnt = None
+        self.MAJ = Maj
         pass
 
     def __str__(self):
@@ -77,7 +78,7 @@ class SolutionCombiner():
         if self.code is None:
             pass
         else:
-            data, dt = getData(self.code)
+            data, dt = getData(self.code, MAJ=self.MAJ)
             self.closestList = getClosestBuildings(
                 self.coordinates, data, R)
             self.hard_buildings = [extractCoordinates(
