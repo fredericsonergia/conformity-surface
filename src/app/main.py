@@ -14,8 +14,8 @@ sys.path.append('../')
 from surface_estimator import SurfaceController
 from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
 import uvicorn
-from src.surface_estimator.getImage import ImagesController
-from src.surface_estimator.IGN_API import IGN_API
+from surface_estimator.getImage import ImagesController
+from surface_estimator.IGN_API import IGN_API
 
 
 app = FastAPI()
@@ -38,12 +38,12 @@ app.add_middleware(
 Recover the configuration file 
 """
 config = configparser.ConfigParser()
-config.read("../surface.config")
+config.read("app.config")
 Image, Confidence, Data = config['IMAGE'], config['CONFIDENCE'], config["DATA"]
 w, h, r, R = int(Image["width in px"]), int(Image["height in px"]), float(
     Image["ratio in px/m"]), float(Image["Radius in m"])
 data_path, static_path = Data["data_path"], Data["static_path"]
-loaded_model = pickle.load(open(Confidence["path"], 'rb'))
+loaded_model = pickle.load(open(Confidence["model_path"], 'rb'))
 
 
 """
@@ -92,8 +92,9 @@ def estimateSurface_coords(req: coordsRequest):
     controller.set_coordinates(coordinates)
     controller.set_surface()
     controller.get_image(w, h)
-    response = {"surface": controller.computedSurf,
-                "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
+    response = BasicResponse(surface=controller.computedSurf,
+                            coords=controller.image_coordinates, 
+                            filename=controller.file_name[2:])
     return response
 
 
@@ -107,8 +108,9 @@ def estimateSurface_address(req: addressRequest):
     controller.set_address(address)
     controller.set_surface()
     controller.get_image(w, h)
-    response = {"surface": controller.computedSurf,
-                "coords": controller.image_coordinates, "fileName": controller.file_name[1:]}
+    response = BasicResponse(surface=controller.computedSurf,
+                            coords=controller.image_coordinates, 
+                            filename=controller.file_name[2:])
     return response
 
 

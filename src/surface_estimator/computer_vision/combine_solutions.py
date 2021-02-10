@@ -35,7 +35,7 @@ class SolutionCombiner():
                      for points in cnt] for cnt in self.contours]
         string = {"surface": self.surf,
                   "coords": self.coordinates,
-                  "fileName": self.file_name_full[1:],
+                  "fileName": self.file_name_full[2:],
                   "contours": contours,
                   "surfaces": surfaces,
                   "metrics": [{"label": "Tau", "value": self.tU},
