@@ -7,9 +7,15 @@ import json
 import pickle
 import configparser
 
+import sys
+
+sys.path.append('../')
+
 from surface_estimator import SurfaceController
 from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
 import uvicorn
+from src.surface_estimator.getImage import ImagesController
+from src.surface_estimator.IGN_API import IGN_API
 
 
 app = FastAPI()
@@ -27,16 +33,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 """
 Recover the configuration file 
 """
 config = configparser.ConfigParser()
-config.read("surface.config")
-Image, Confidence = config['IMAGE'], config['CONFIDENCE']
+config.read("../surface.config")
+Image, Confidence, Data = config['IMAGE'], config['CONFIDENCE'], config["DATA"]
 w, h, r, R = int(Image["width in px"]), int(Image["height in px"]), float(
     Image["ratio in px/m"]), float(Image["Radius in m"])
+data_path, static_path = Data["data_path"], Data["static_path"]
 loaded_model = pickle.load(open(Confidence["path"], 'rb'))
 
 
@@ -72,12 +78,17 @@ class FullResponse(BaseModel):
 Define the routes
 """
 
+app.mount("/static", StaticFiles(directory=static_path), name="static")
+
+
 
 @app.post("/estimateSurface/coordinates", response_model=BasicResponse)
 def estimateSurface_coords(req: coordsRequest):
 
     coordinates = [float(coord) for coord in req.coordinates.split(',')]
-    controller = SurfaceController()
+    imgCtrl = ImagesController(static_path)
+    ign = IGN_API(data_path)
+    controller = SurfaceController(imgCtrl, ign)
     controller.set_coordinates(coordinates)
     controller.set_surface()
     controller.get_image(w, h)
@@ -90,7 +101,9 @@ def estimateSurface_coords(req: coordsRequest):
 def estimateSurface_address(req: addressRequest):
 
     address = req.address
-    controller = SurfaceController()
+    imgCtrl = ImagesController(static_path)
+    ign = IGN_API(data_path)
+    controller = SurfaceController(imgCtrl, ign)
     controller.set_address(address)
     controller.set_surface()
     controller.get_image(w, h)
@@ -103,7 +116,9 @@ def estimateSurface_address(req: addressRequest):
 def estimateSurface_coords_from_cv(req: coordsRequest):
 
     coordinates = [float(coord) for coord in req.coordinates.split(',')]
-    sc = SolutionCombiner(coordinates)
+    imgCtrl = ImagesController(static_path)
+    ign = IGN_API(data_path)
+    sc = SolutionCombiner(imgCtrl, ign, coordinates=coordinates)
     valid = sc.combine(w, h, r, R)
     if valid == -1:
         return FileNotFoundError
@@ -114,7 +129,9 @@ def estimateSurface_coords_from_cv(req: coordsRequest):
 
 @ app.post("/estimateSurface/address/fromCV", response_model=FullResponse)
 def estimateSurface_coords_from_cv(req: addressRequest):
-    sc = SolutionCombiner()
+    imgCtrl = ImagesController(static_path)
+    ign = IGN_API(data_path)
+    sc = SolutionCombiner(imgCtrl, ign)
     sc.set_address(req.address)
     valid = sc.combine(w, h, r, R)
     if valid == -1:

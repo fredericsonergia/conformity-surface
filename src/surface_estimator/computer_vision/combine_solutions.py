@@ -1,6 +1,4 @@
 
-from surface_estimator.IGN_API import getData, getVille
-from surface_estimator.getImage import get_centered, get_image_with_pixels, plot_surroundings
 from surface_estimator.algorithmes.closest import getClosestBuildings, extractCoordinates, distance_polygon, isBuilding
 from surface_estimator.algorithmes.calcul_surface import perimetre
 from surface_estimator.computer_vision.contours import find_contours, BuildingFinder, ColorLabeler
@@ -9,11 +7,15 @@ import numpy as np
 import cv2
 from surface_estimator.computer_vision.image_processor import ImageProcessor
 from surface_estimator.coordonnees.coordinates import getLocationFromAddress
+from surface_estimator.getImage import ImagesController
+from surface_estimator.IGN_API import IGN_API
 
 
 class SolutionCombiner():
-    def __init__(self, coordinates=None, Maj=False):
+    def __init__(self, imgCtrl: ImagesController, ign: IGN_API, coordinates=None, Maj=False):
         self.coordinates = coordinates
+        self.imgCtrl = imgCtrl
+        self.ign = ign
         self.code = None
         self.contours = []
         self.building_index = 0
@@ -53,18 +55,18 @@ class SolutionCombiner():
         """ 
         get the background image from cadastre 
         """
-        ville, self.code = getVille(self.coordinates)
-        centered = get_centered(
+        ville, self.code = self.ign.getVille(self.coordinates)
+        centered = self.imgCtrl.get_centered(
             w, h, r, self.coordinates, self.code, [0])
         if centered is None:
             return -1
         self.file_name, self.zone, self.bbox, center = centered
-        cadastre = get_image_with_pixels(
+        cadastre = self.imgCtrl.get_image_with_pixels(
             w, h, r, self.coordinates, center, self.code, self.zone, [1])
         if cadastre is None:
             return -1
         self.file_name_cadastre = cadastre[0]
-        full = get_image_with_pixels(
+        full = self.imgCtrl.get_image_with_pixels(
             w, h, r, self.coordinates, center, self.code, self.zone)
         if full is None:
             return -1
@@ -78,7 +80,7 @@ class SolutionCombiner():
         if self.code is None:
             pass
         else:
-            data, dt = getData(self.code, MAJ=self.MAJ)
+            data, dt = self.ign.getData(self.code, MAJ=self.MAJ)
             self.closestList = getClosestBuildings(
                 self.coordinates, data, R)
             self.hard_buildings = [extractCoordinates(
@@ -95,7 +97,7 @@ class SolutionCombiner():
         W, H = w/r, h/r
         self.get_buildings(R)
         image = cv2.imread(self.file_name)
-        plotted, self.contours = plot_surroundings(
+        plotted, self.contours = self.imgCtrl.plot_surroundings(
             image, self.coordinates, self.hard_buildings, self.bbox, w, h, r)
         file_name = self.file_name[:-4] + "_combined.png"
         self.file_name_combined = file_name
@@ -117,7 +119,7 @@ class SolutionCombiner():
         surfaces = []
         h, w = self.image.shape[:2]
         center = (w//2, h//2)
-        finder = BuildingFinder()
+        finder = BuildingFinder(self.imgCtrl, self.ign)
         finder.load(file=self.file_name_combined)
         thresh = finder.binarize()
         x, y = (w//2, h//2)
@@ -134,7 +136,7 @@ class SolutionCombiner():
         h, w = self.image.shape[:2]
         center = (w//2, h//2)
         lab = cv2.cvtColor(self.image, cv2.COLOR_BGR2LAB)
-        finder = BuildingFinder()
+        finder = BuildingFinder(self.imgCtrl, self.ign)
         finder.load("./" + self.file_name_combined.split("/")
                     [1], file=self.file_name_combined)
         self.thresh = finder.binarize()
@@ -142,7 +144,6 @@ class SolutionCombiner():
         i = 0
         k = 0
         dist = float("inf")
-        cv2.imwrite("./static/thresh.png", self.thresh)
         self.ret, labels = cv2.connectedComponents(thresh)
         ret = self.ret
 
@@ -204,8 +205,8 @@ class SolutionCombiner():
         cnt = self.cnt
         cv2.drawContours(self.image, [cnt], -1, (0, 0, 255), 2)
         cv2.imshow(title, self.image)
-        cv2.imwrite("./static/cas_limites/"+title+".png", self.image)
-        cv2.imwrite("./static/cas_limites/"+title+"_original.png",
+        cv2.imwrite(self.imgCtrl.folder + "cas_limites/"+title+".png", self.image)
+        cv2.imwrite(self.imgCtrl.folder + "cas_limites/"+title+"_original.png",
                     cv2.imread(self.file_name_full))
         cv2.waitKey(0)
         cv2.destroyAllWindows()

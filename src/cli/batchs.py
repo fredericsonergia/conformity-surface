@@ -1,11 +1,18 @@
+import sys
+sys.path.append("../")
+
 from surface_estimator.computer_vision.combine_solutions import SolutionCombiner
 import argparse
 import configparser
 import pickle
+from surface_estimator.getImage import ImagesController
+from surface_estimator.IGN_API import IGN_API
 
 
 class BatchComputer():
-    def __init__(self, file_name, MAJ):
+    def __init__(self, static_path, data_path, file_name, MAJ):
+        self.imgCtrl = ImagesController(static_path)
+        self.ign = IGN_API(data_path)
         self.file_name = file_name
         self.MAJ = MAJ
 
@@ -29,9 +36,10 @@ class BatchComputer():
         """
         Get the corresponding data for all coordinates in the file
         """
+        
         self.result = "["
         for coordinates in self.coordinates:
-            sc = SolutionCombiner(coordinates, self.MAJ)
+            sc = SolutionCombiner(self.imgCtrl, self.ign, coordinates=coordinates, Maj=self.MAJ)
             valid = sc.combine(w, h, r, R)
             if valid == -1:
                 print("Invalid Image")
@@ -58,13 +66,14 @@ args = vars(ap.parse_args())
 MAJ = False if "maj" in args.keys() is None else args["maj"]
 config = configparser.ConfigParser()
 config.read(args["config"])
-Image, Batch, Confidence = config['IMAGE'], config['BATCH'], config['CONFIDENCE']
+Image, Batch, Confidence, Data = config['IMAGE'], config['BATCH'], config['CONFIDENCE'], config['DATA']
 w, h, r, R = int(Image["width in px"]), int(Image["height in px"]), float(
     Image["ratio in px/m"]), float(Image["Radius in m"])
 input_file, output_file = Batch["input"], Batch["output"]
+data_path, static_path = Data["data_path"], Data["static_path"]
 model = pickle.load(open(Confidence["path"], 'rb'))
 
-computer = BatchComputer(input_file, args["maj"])
+computer = BatchComputer(static_path=static_path, data_path=data_path, file_name=input_file, MAJ=args["maj"])
 computer.load_data()
 computer.extract_coordinates()
 computer.get_all(w, h, r, R, model)
