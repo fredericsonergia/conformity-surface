@@ -31,3 +31,4 @@ uvicorn
 fastapi
 aiofiles
 uvicorn
+fire
