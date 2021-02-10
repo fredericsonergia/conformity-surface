@@ -12,8 +12,6 @@ Comment installer les dépendances et lancer l'API
 pip3 install -r requirements.txt
 ```
 
-Ou est accessible sur le répository à la racine sur le fichier `swagger.json`
-
 #### Lancer le serveur
 
 Le seveur utilise par défaut le port 8000
@@ -50,6 +48,7 @@ docker-compose up --build
 Le swagger de l'API se trouve à l'adresse suivante
 
 <${baseURL}/docs#/>
+Ou est accessible sur le répository à la racine sur le fichier `swagger.json`
 
 ## CLI
 
