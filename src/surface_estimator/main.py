@@ -1,11 +1,11 @@
 from .algorithmes.calcul_surface import surface
 from .algorithmes.closest import closestBuilding, getClosestBuildings, extractCoordinates, closestCenter
-from .IGN_API import getVille, getData
+from .IGN_API import IGN_API
 from .coordonnees.conversion import buildingGPS2plan, gps2plan
 from .coordonnees.coordinates import getLocationFromAddress
 from .coordonnees.preciseCoordinates import getLocation
 from .utils import getXY, distancePoint, taille
-from .getImage import plotOnImage, getPlottedPlan
+from .getImage import ImagesController
 import matplotlib.pyplot as plt
 import json
 
@@ -13,7 +13,9 @@ maxDist = 50
 
 
 class SurfaceController():
-    def __init__(self, closestFunction=closestBuilding, MAJ=False):
+    def __init__(self, imgCtrl: ImagesController, ignApi: IGN_API, closestFunction=closestBuilding, MAJ=False):
+        self.imgCtrl = imgCtrl
+        self.IGNAPI = ignApi
         self.MAJ = MAJ
         self.closestFunction = closestFunction
         self.coordinates = None
@@ -31,7 +33,7 @@ class SurfaceController():
         self.set_closest()
 
     def set_ville(self):
-        ville, code = getVille(self.coordinates)
+        ville, code = self.IGNAPI.getVille(self.coordinates)
         self.ville = ville
         self.code = code
         if self.ville == None or self.code == None:
@@ -39,7 +41,7 @@ class SurfaceController():
         return -1
 
     def set_ville_data(self):
-        self.data, self.dt = getData(self.code, self.MAJ)
+        self.data, self.dt = self.IGNAPI.getData(self.code, self.MAJ)
 
     def set_coordinates(self, coordinates):
         self.coordinates = coordinates
@@ -91,7 +93,7 @@ class SurfaceController():
         center = [sum([coord[0] for coord in buildingcoords])/n,
                   sum([coord[1] for coord in buildingcoords])/n]
         self.image_coordinates = center
-        self.file_name, zone, bbox = getPlottedPlan(center, buildingcoords, self.code, r, w, h)
+        self.file_name, zone, bbox = self.imgCtrl.getPlottedPlan(center, buildingcoords, self.code, r, w, h)
 
     def doThePlot(self, w, h):
         r = self.get_ratio(w, h)
@@ -100,11 +102,8 @@ class SurfaceController():
         center = [sum([coord[0] for coord in buildingcoords])/n,
                   sum([coord[1] for coord in buildingcoords])/n]
         self.image_coordinates = center
-        plotOnImage(center, buildingcoords, self.code, r, w, h)
+        self.imgCtrl.plotOnImage(center, buildingcoords, self.code, r, w, h)
 
-class ImageSurfaceController():
-    def __init__(self):
-        pass
 
 
     

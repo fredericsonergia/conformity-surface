@@ -1,6 +1,4 @@
 
-from surface_estimator.getImage import getImage, get_image_with_pixels
-from surface_estimator.IGN_API import getVille
 from surface_estimator.utils import in_ring, neighbours, stringify, find_closest, is_color
 from surface_estimator.algorithmes.closest import distance_polygon
 from collections import OrderedDict
@@ -46,21 +44,23 @@ class ColorLabeler():
 
 
 class BuildingFinder():
-    def __init__(self, coordinates=(0, 0)):
+    def __init__(self, imgCtrl, ign, coordinates=(0, 0)):
+        self.imgCtrl = imgCtrl
+        self.ign = ign
         self.title = "title"
         self.coordinates = coordinates
 
     def get_images(self, w, h, r, folder):
-        ville, code = getVille(self.coordinates)
-        file_name, zone, bbox = getImage(w, h, r, self.coordinates, code, [0])
+        ville, code = self.ign.getVille(self.coordinates)
+        file_name, zone, bbox = self.imgCtrl.getImage(w, h, r, self.coordinates, code, [0])
         self.img = cv2.imread(folder + file_name)
         jaune = [51, 204, 255]
         center = find_closest(self.img, jaune)
-        self.file_name_cadastre, zone, bbox, folder = get_image_with_pixels(
+        self.file_name_cadastre, zone, bbox, folder = self.imgCtrl.get_image_with_pixels(
             w, h, r, self.coordinates, center, code, zone, [1])
-        self.file_name_bu, zone, bbox, folder = get_image_with_pixels(
+        self.file_name_bu, zone, bbox, folder = self.imgCtrl.get_image_with_pixels(
             w, h, r, self.coordinates, center, code, zone, [0])
-        self.file_name_back, zone, bbox, folder = get_image_with_pixels(
+        self.file_name_back, zone, bbox, folder = self.imgCtrl.get_image_with_pixels(
             w, h, r, self.coordinates, center, code, zone, [2, 1, 0, 4, 5, 7, 8, 9])
 
     def load(self, folder, all=False, file=None):

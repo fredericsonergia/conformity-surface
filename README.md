@@ -76,3 +76,27 @@ Latitide2;Longitude2
 ```
 
 Pour en savoir plus sur le format de la sortie, veuillez vous référer à l'objet `SolutionCombiner` (en particulier sa méthode `str`) dans le fichier `combine_solutions.py`
+
+### Réentrainer l'indice de confiance
+
+```bash=
+cd src/cli
+python3 confidence.py --config_file=path/to/app.config train max_depth min_sample_size method save output_file
+
+# exemple
+python3 confidence.py --config_file=../app/app.config train 10 5 binary
+```
+
+plus de précisions dans le fichier `src/cli/confidence.py`
+
+### Tester l'indice de confiance
+
+```bash=
+python3 confidence.py --config_file=path/to/app.config test save output_file
+
+# exemple
+python3 confidence.py --config_file=../app/app.config test True ../test/test_data/result.csv
+```
+
+plus de précisions dans le fichier `src/cli/confidence.py`
+Les fichiers de test et d'entrainements doivent être au format de celui donné sur la dropbox (`201216_Fichier Cadastre surface.csv`). Si ce n'est pas le cas, veuillez modifier la méthode privée `_get_infos()`
