@@ -4,21 +4,17 @@
 
 Comment installer les dépendances et lancer l'API
 
-### Installation des dépendances
+### "A la main"
+
+#### Installation des dépendances
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-### Documentation de l'API
-
-Le swagger de l'API se trouve à l'adresse suivante
-
-<${baseURL}/docs#/>
-
 Ou est accessible sur le répository à la racine sur le fichier `swagger.json`
 
-### Lancer le serveur
+#### Lancer le serveur
 
 Le seveur utilise par défaut le port 8000
 Tenez à vérifier que le fichier de configuration `surface.config` avec les valeurs désirées avant de lancer le serveur
@@ -37,8 +33,23 @@ if __name__ == "__main__":
 Puis lancer
 
 ```bash
+cd src
 python3 main.py
 ```
+
+### En utilisant Docker
+
+Pour build et lancer l'image docker :
+
+```bash
+docker-compose up --build
+```
+
+### Documentation de l'API
+
+Le swagger de l'API se trouve à l'adresse suivante
+
+<${baseURL}/docs#/>
 
 ## CLI
 
