@@ -54,7 +54,18 @@ Ou est accessible sur le répository à la racine sur le fichier `swagger.json`
 
 ### Lancer les tests
 
-Work in progress
+Pour lancer les tests sur la CLI, veuillez lancer :
+
+```bash
+python3 -m unittest src/test/cli/test_cli.py
+```
+
+Pour lancer les tests sur l'API, veuillez lancer :
+
+```bash
+python3 -m unittest src/test/app/test_app.py
+```
+
 
 ### Lancer un calcul par batch
 
