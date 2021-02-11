@@ -40,15 +40,6 @@ app.add_middleware(
 """
 Recover the configuration file 
 """
-# config = configparser.ConfigParser()
-# config.read("app.config")
-# Image, Confidence, Data = config['IMAGE'], config['CONFIDENCE'], config["DATA"]
-# w, h, r, R = int(Image["width in px"]), int(Image["height in px"]), float(
-#     Image["ratio in px/m"]), float(Image["Radius in m"])
-# data_path, static_path = Data["data_path"], Data["static_path"]
-# model_path = Confidence["model_path"]
-# loaded_model = pickle.load(open(Confidence["model_path"], 'rb'))
-
 
 @lru_cache()
 def get_settings():
@@ -62,22 +53,6 @@ def get_settings():
     loaded_model = pickle.load(open(Confidence["model_path"], 'rb'))
     return config.Settings(w=w, h=h, r=r, R=R, data_path=data_path, static_path=static_path, loaded_model=loaded_model)
 
-
-# if __name__=="__main__":
-#     c = Config("app.config")
-#     app.mount("/static", StaticFiles(directory=c.static_path), name="static")
-
-# class Config():
-#     def __init__(self, config_file):
-#         config = configparser.ConfigParser()
-#         config.read(config_file)
-#         Image, Confidence, Data = config['IMAGE'], config['CONFIDENCE'], config["DATA"]
-#         self.w, self.h, self.r, self.R = int(Image["width in px"]), int(Image["height in px"]), float(
-#             Image["ratio in px/m"]), float(Image["Radius in m"])
-#         self.data_path, self.static_path = Data["data_path"], Data["static_path"]
-#         self.loaded_model = pickle.load(open(Confidence["model_path"], 'rb'))
-#     def get_app(self):
-#         return app
 
 """
 Define the data classes
