@@ -53,6 +53,15 @@ class ConfidenceBuilder(object):
 
 
     def _getInfos(self, line):
+        """
+        Méthode pour récupérer les informations du csv
+        le csv doit être au bon format 
+        @params line: la ligne dont on veut extraire les informations
+        @returns 
+                address : l'adresse enregistrée
+                surface : la surface estimée
+                corods : les coordonnées du point considéré
+        """
         splitted = line.lower().split(';')
         for a in splitted[0]:
             if a not in '0123456789':
@@ -76,6 +85,15 @@ class ConfidenceBuilder(object):
         return address, float(surface), coords
 
     def train(self, max_depth=10, min_samples_leaf=5, method="binary", save=False, output_file=None):
+        """
+        Méthode pour entrainer le modèle d'indice de confiance
+        @params 
+                max_depth : la profondeur maximale de l'arbre de décision
+                min_samples_leaf : la taille minimale d'une fueille sur l'arbre
+                method : méthode de calcul de l'arbre (régression ou binaire)
+                save : sauvegarder les résultats dans un fichier de sortie
+                output_file : chemin vers le fichier de sortie
+        """
         self._set_train_file(self.train_input_file)
         model_filename = self.model_path
         infos = self.train
@@ -96,6 +114,12 @@ class ConfidenceBuilder(object):
         graph.render("confidence")
 
     def test(self, save=False, output_file=None):
+        """
+        Méthode pour tester l'indice de confiance
+        @params 
+                save : sauvegarder les résultats dans un fichier de sortie
+                output_file : chemin vers le fichier de sortie
+        """
         model_filename = self.model_path
         self._set_test_file(self.test_input_file)
         model = pickle.load(open(model_filename, 'rb'))
@@ -104,6 +128,21 @@ class ConfidenceBuilder(object):
 
 
     def _do_the_test(self, infos, model=None, save=False, output_file=None):
+        """
+        Méthode principale de lancement des tests
+        Lance le calcul de surface sur un jeu de données en entrée 
+        @params
+                infos : le jeu de données prétraité sur lequel on lance le calcul
+                model : le model de confiance utilisé (optionnel)
+                save : sauvegarder les résultats dans un fichier de sortie
+                output_file : chemin vers le fichier de sortie
+        @returns
+                Tau : le tau d'urbanisme de l'image
+                DeltaD : l'écartement moyen des bâtiments au centre de l'image
+                DeltaS : la différence relative des surfaces sur l'image
+                TauLignes : le taux de lignes de l'image
+                errors : l'erreur relative faite sur le calcul de surface
+        """
         errors = []
         Tau = []
         DeltaD = []

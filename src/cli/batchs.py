@@ -17,6 +17,7 @@ class BatchComputer():
         self.MAJ = MAJ
 
     def load_data(self):
+
         with open(self.file_name) as coordinates_file:
             self.lines = coordinates_file.readlines()
             coordinates_file.close()
