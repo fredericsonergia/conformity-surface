@@ -22,8 +22,9 @@ from surface_estimator.IGN_API import IGN_API
 mpl.use("MacOSX")
 
 class ConfidenceBuilder(object):
-    def __init__(self, config_file):
-
+    def __init__(self, config_file=None):
+        if config_file is None:
+            return None
         config = configparser.ConfigParser()
         config.read(config_file)
         Image, Batch, Confidence, Data = config['IMAGE'], config['BATCH'], config['CONFIDENCE'], config['DATA']
@@ -42,11 +43,13 @@ class ConfidenceBuilder(object):
         with open(file_name, 'r') as f:
             train = f.readlines()
         self.train = [self._getInfos(line) for line in train]
+        f.close()
 
     def _set_test_file(self, file_name):
         with open(file_name, 'r') as f:
             test = f.readlines()
         self.test = [self._getInfos(line) for line in test]
+        f.close()
 
 
     def _getInfos(self, line):
@@ -96,7 +99,6 @@ class ConfidenceBuilder(object):
         model_filename = self.model_path
         self._set_test_file(self.test_input_file)
         model = pickle.load(open(model_filename, 'rb'))
-        loaded_model = pickle.load(open(model_filename, 'rb'))
         test_dataset = self.test
         self._do_the_test(test_dataset, model, save=save, output_file=output_file)
 
